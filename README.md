@@ -8,7 +8,7 @@ El sistema utiliza una componente desarrollada en Prolog, que ofrece toda la IA 
 de despachos necesaria.
 
 *******************
-Desarrolladores
+<b>Desarrolladores</b>
 *******************
 
 <b>Federico Joaquín - Martín Buron.</b><br>
