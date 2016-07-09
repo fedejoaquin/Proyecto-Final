@@ -1,8 +1,8 @@
-######################################
-Proyecto FINAL de carrera.
-######################################
+**************************************
+Proyecto Final de carrera
+**************************************
 
-Asignación inteligente de recursos en forma dinámica: aplicación para transporte urbano de pasajeros.
+Asignación inteligente de recursos en forma dinámica: aplicación para transporte urbano de pasajeros.<br>
 Implementación de webservice utilizado como interfaz web para clientes y taxistas.
 El sistema utiliza una componente desarrollada en Prolog, que ofrece toda la IA para la planificación
 de despachos necesaria.
