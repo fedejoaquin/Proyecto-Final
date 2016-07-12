@@ -1,0 +1,107 @@
+/* Estilos propios del sitio */
+
+.img-nosotros{
+    width: 100px;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.img-logo{
+    width: 75px;
+    height: 75px;
+    background-color: #009688;
+}
+
+.btn, login{
+    width: 150px;
+    height: 40px;
+    padding: 0px;
+    margin-bottom: 10px;
+}
+
+.btn-perfil{
+    width: 100px;
+    height: 100px;
+}
+
+.div_login{
+    display:none;
+}
+
+.message_error{
+    font-size: 14px;
+    font-style: Italic;
+    background-color: gray;
+    border-radius: 15px;
+    height: 25px;
+    text-align: center;
+}
+
+.txt-cabecera{
+    margin-top: 20px;
+    text-align: center;
+}
+
+.txt-info{
+    text-align: center;
+}
+
+.txt-form-error{
+    font-size: 11px;
+    font-style: Italic;
+    color: red;
+}
+
+
+/* Custom Stylesheet for parallax*/
+
+nav ul a,
+nav .brand-logo {
+  color: #444;
+}
+
+p {
+    line-height: 2rem;
+    text-align: justify;
+}
+
+.button-collapse {
+  color: #26a69a;
+}
+
+.parallax-container {
+  min-height: 380px;
+  line-height: 0;
+  height: auto;
+  color: rgba(255,255,255,.9);
+}
+  .parallax-container .section {
+    width: 100%;
+  }
+
+@media only screen and (max-width : 992px) {
+  .parallax-container .section {
+    position: absolute;
+    top: 40%;
+  }
+  #index-banner .section {
+    top: 10%;
+  }
+}
+
+@media only screen and (max-width : 600px) {
+  #index-banner .section {
+    top: 0;
+  }
+}
+
+.icon-block {
+  padding: 0 15px;
+}
+.icon-block .material-icons {
+  font-size: inherit;
+}
+
+footer.page-footer {
+    margin: 0;
+}
