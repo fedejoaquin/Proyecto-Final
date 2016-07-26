@@ -108,6 +108,7 @@ class Login extends CI_Controller {
                     //Creo la sesión del cliente, con sus datos.
                     $this->session->set_userdata('cid',$resultado['id']);
                     $this->session->set_userdata('nombre',$usuario);
+                    $this->session->set_userdata('telefono',$resultado['telefono']);
 
                     redirect(site_url()."clientes");
                 }else{
@@ -137,6 +138,7 @@ class Login extends CI_Controller {
         }else{ 
             $usuario = $this->input->post('r_username');
             $password = $this->input->post('r_password');
+            $telefono = $this->input->post('r_telefono');
             
             //Consulta en busca de un cliente con nombre $usuario
             $resultado = $this->MClientes->ver_por_nombre($usuario, -1);
@@ -145,6 +147,7 @@ class Login extends CI_Controller {
             if( count($resultado) === 0 ){
                 $datos['nombre'] = $usuario;
                 $datos['password'] = $password;
+                $datos['telefono'] = $telefono;
                 $datos['id_ws'] = -1;
                 
                 //Damos de alta al nuevo cliente
@@ -154,6 +157,7 @@ class Login extends CI_Controller {
                     //Creo la sesión del cliente, con sus datos.
                     $this->session->set_userdata('cid',$resultado['id']);
                     $this->session->set_userdata('nombre',$usuario);
+                    $this->session->set_userdata('telefono', $telefono);
 
                     redirect(site_url()."clientes");
                 }else{
@@ -186,6 +190,7 @@ class Login extends CI_Controller {
             
             $datos['nombre'] = $dataUser['name'];
             $datos['password'] = '';
+            $datos['telefono'] = 0;
             $datos['id_ws'] = $dataUser['id'];
             
             //Consultamos la existencia de una cuenta con los datos actuales indicados por Facebook
@@ -200,6 +205,7 @@ class Login extends CI_Controller {
                     //Creo la sesión del cliente, con sus datos.
                     $this->session->set_userdata('cid',$resultado['id']);
                     $this->session->set_userdata('nombre',$datos['nombre']);
+                    $this->session->set_userdata('telefono',0);
 
                     redirect(site_url()."clientes");
                 }else{
@@ -212,6 +218,7 @@ class Login extends CI_Controller {
                 //Creo la sesión del cliente, con sus datos.
                 $this->session->set_userdata('cid',$resultado['id']);
                 $this->session->set_userdata('nombre',$resultado['nombre']);
+                $this->session->set_userdata('telefono',$resultado['telefono']);
 
                 redirect(site_url()."clientes");
             }
@@ -268,6 +275,7 @@ class Login extends CI_Controller {
             
             $datos['nombre'] = $dataUser['name'];
             $datos['password'] = '';
+            $datos['telefono'] = 0;
             $datos['id_ws'] = $dataUser['id'];
             
             //Consultamos la existencia de una cuenta con los datos actuales indicados por Google+
@@ -282,6 +290,7 @@ class Login extends CI_Controller {
                     //Creo la sesión del cliente, con sus datos.
                     $this->session->set_userdata('cid',$resultado['id']);
                     $this->session->set_userdata('nombre',$datos['nombre']);
+                    $this->session->set_userdata('telefono',0);
 
                     redirect(site_url()."clientes");
                 }else{
@@ -294,7 +303,8 @@ class Login extends CI_Controller {
                 //Creo la sesión del cliente, con sus datos.
                 $this->session->set_userdata('cid',$resultado['id']);
                 $this->session->set_userdata('nombre',$resultado['nombre']);
-
+                $this->session->set_userdata('telefono',$resultado['telefono']);
+                
                 redirect(site_url()."clientes");
             }
             

@@ -11,6 +11,7 @@ class MClientes extends CI_Model {
         
         $data = array(
             'nombre' => $datos['nombre'],
+            'telefono' => $datos['telefono'],
             'password' => $password,
             'id_ws' => $datos['id_ws']
         );
@@ -18,7 +19,6 @@ class MClientes extends CI_Model {
         //Alta del empleado
         return $this->db->insert('Clientes',$data);
     }
-    
     
     /**
      * Computa y retorna el registro de un cliente con id $id, si es que existe.
@@ -46,5 +46,16 @@ class MClientes extends CI_Model {
         $resultado = $query->row_array();
         
         return $resultado;
+    }
+    
+    /**
+     * Edita el campo teléfono de un cliente con id $cid.
+     */
+    public function editar_telefono($cid, $telefono){
+        $data = array(
+            'telefono' => $telefono,
+        );
+        $this->db->where('id', $cid);
+        return $this->db->update('Clientes', $data );
     }
 }

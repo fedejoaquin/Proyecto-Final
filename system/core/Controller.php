@@ -65,6 +65,7 @@ class CI_Controller {
 	 */
 	public function __construct()
 	{
+                date_default_timezone_set('America/Argentina/Buenos_Aires');
 		self::$instance =& $this;
 
 		// Assign all the class objects that were instantiated by the

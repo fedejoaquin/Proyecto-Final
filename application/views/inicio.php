@@ -164,24 +164,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="col s10 m10 offset-s1 offset-m1 message_error"><?php echo $error; ?> </div>
                     <?php } ?>
                 </div>
-                <div id="div_registrar" class="row div_login">
+                <div id="div_registrar" class="row div_hide">
                     <?php 
                         $attr = array('class'=>'col s12 m6 offset-m3', 'autocomplete' => 'off');
                         echo form_open('login/registrar_cliente',$attr); 
                     ?>
                             <div class="input-field col s12">
-                                <input id="r_username" name="r_username" type="text" class="validate">
-                                <label for="r_username">Usuario</label>
+                                <input id="r_username" name="r_username" type="text" class="validate" minlength=5>
+                                <label for="r_username" data-error="Min: 5 caracteres">Usuario</label>
                                 <?php echo form_error('r_username', '<div class="txt-form-error">','</div>'); ?>
                             </div>
                             <div class="input-field col s12">
-                                <input id="r_password" name="r_password" type="password" class="validate">
-                                <label for="r_password">Password</label>
+                                <input id="r_telefono" name="r_telefono" type="number" class="validate" minlength=8>
+                                <label for="r_telefono" data-error="Min: 8 números">Teléfono</label>
+                                <?php echo form_error('r_telefono', '<div class="txt-form-error">','</div>'); ?>
+                            </div>
+                            <div class="input-field col s12">
+                                <input id="r_password" name="r_password" type="password" class="validate" minlength=5>
+                                <label for="r_password" data-error="Min: 5 caracteres">Password</label>
                                 <?php echo form_error('r_password', '<div class="txt-form-error">','</div>'); ?>
                             </div>
                             <div class="input-field col s12">
-                                <input id="r_confirm_password" name="r_confirm_password" type="password" class="validate">
-                                <label for="r_confirm_password">Confirme Password</label>
+                                <input id="r_confirm_password" name="r_confirm_password" type="password" class="validate" minlength=5>
+                                <label for="r_confirm_password" data-error="Min: 5 caracteres">Confirme Password</label>
                                 <?php echo form_error('r_confirm_password', '<div class="txt-form-error">','</div>'); ?>
                             </div>
                             <div class="center">
@@ -189,7 +194,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </form>
                 </div>
-                <div id="div_ingresar" class="row div_login">
+                <div id="div_ingresar" class="row div_hide">
                     <?php 
                         $attr = array('class'=>'col s12 m6 offset-m3', 'autocomplete' => 'off');
                         echo form_open('login/login_cliente',$attr); 

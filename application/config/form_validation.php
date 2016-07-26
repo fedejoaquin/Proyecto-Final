@@ -4,17 +4,22 @@ $config = array(
     array(
         'field'   => 'r_username', 
         'label'   => 'Nombre Usuario', 
-        'rules'   => 'required'
+        'rules'   => 'required|min_length[5]'
+    ),
+    array(
+        'field' => 'r_telefono',
+        'label' => 'Telefono',
+        'rules' => 'required|min_length[8]'
     ),
     array(
        'field'   => 'r_password', 
        'label'   => 'Password', 
-       'rules'   => 'required'
+       'rules'   => 'required|min_length[5]'
     ),
     array(
        'field'   => 'r_confirm_password', 
        'label'   => 'Password confirmación', 
-       'rules'   => 'required|matches[r_password]'
+       'rules'   => 'required|min_length[5]|matches[r_password]'
     ), 
     
 ),//Fin login/registrar_cliente
