@@ -4,9 +4,9 @@ class MPedidos extends CI_Model {
     /**
      * Computa el alta de un pedido, registrándolo en las tablas Pedidos, Pedidos Sin Procesar, y Pedidos Procesados,
      * con los datos parametrizados.
-     * Retorna TRUE/FALSE en caso de exito o falla.
+     * Retorna el id del pedido nuevo. En caso de error, retorna -1.
      */
-    public function alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $referencia, $fecha_actual, $fecha_max, $telefono){
+    public function alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $demora, $distancia, $referencia, $fecha_actual, $fecha_max, $telefono){
         
         $data_pedido = array(
             'id_cliente' => $cid,
@@ -19,10 +19,10 @@ class MPedidos extends CI_Model {
             'referencia_adicional' => $referencia,
             'ingreso' => $fecha_actual,
             'max_arribo' => $fecha_max,
-            'telefono' => $telefono
+            'telefono' => $telefono,
+            'demora' => $demora,
+            'distancia' => $distancia
         );
-        
-        $this->db->trans_start();
         
         //Alta del pedido.
         $resultado = $this->db->insert('Pedidos',$data_pedido);
@@ -49,10 +49,9 @@ class MPedidos extends CI_Model {
         $resultado = $resultado && $this->db->insert('Pedidos_procesados',$data_pedido_procesado);
         
         if ($resultado){
-            $this->db->trans_complete();
-            return true;
+            return $id_pedido;
         }else{
-            return false;
+            return -1;
         }
     }
     
@@ -67,6 +66,39 @@ class MPedidos extends CI_Model {
         $consulta .= 'ON p.id = pp.id_pedido ';
         $consulta .= 'WHERE p.id_cliente = '.$id.' ';
         $consulta .= 'ORDER BY p.ingreso DESC ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
+        
+        return $resultado;
+    }
+    
+    /**
+     * Computa y retorna los registros de pedidos que aún no se despacharon ni se encuentran en proceso
+     * de despacho (estado = procesando, aceptado)
+     * $resultado = Array(Id, Lat_origen, Long_origen, Lat_destino, Long_destino).
+     */
+    public function get_sin_despachar(){
+        $consulta = 'SELECT p.id, p.lat_origen, p.long_origen, p.lat_destino, p.long_destino ';
+        $consulta .= 'FROM Pedidos p LEFT JOIN Pedidos_procesados pp ';
+        $consulta .= 'ON p.id = pp.id_pedido ';
+        $consulta .= 'WHERE pp.estado = "Procesando" OR pp.estado = "Aceptado" ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
+        
+        return $resultado;
+    }
+    
+    /**
+     * Computa y retorna los registros de pedidos que despachados o a despachar (estado = Despachado, A_despachar)
+     * $resultado = Array(Id, Lat_origen, Long_origen, Lat_destino, Long_destino).
+     */
+    public function get_despachados(){
+        $consulta = 'SELECT p.id, p.lat_origen, p.long_origen, p.lat_destino, p.long_destino ';
+        $consulta .= 'FROM Pedidos p LEFT JOIN Pedidos_procesados pp ';
+        $consulta .= 'ON p.id = pp.id_pedido ';
+        $consulta .= 'WHERE pp.estado = "A_despachar" OR pp.estado = "Despachado" ';
         
         $query = $this->db->query($consulta);
         $resultado = $query->result_array();

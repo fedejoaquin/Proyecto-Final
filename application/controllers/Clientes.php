@@ -42,14 +42,20 @@ class Clientes extends CI_Controller {
             $long_origen = $this->input->post('long_origen');
             $lat_destino = $this->input->post('lat_destino');
             $long_destino = $this->input->post('long_destino');
+            $distancia = $this->input->post('distancia');
+            $demora = $this->input->post('demora');
             
             $fecha_actual = date("Y-m-d H:i:s");
             $fecha_suma = strtotime ('+'.$margen.' minute' , strtotime ( $fecha_actual ) ) ;
             $fecha_max = date("Y-m-d H:i:s", $fecha_suma);
            
-            //SE DA EL ALTA AL PEDIDO EN LAS TABLAS CORRESPONDIENTES, SIN CALCULAR DEMORA, DISTANCIA NI PRIORIDAD
-            if ($this->MPedidos->alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $referencia, $fecha_actual, $fecha_max, $telefono)){
+            //Alta de pedido, SIN INDICAR PRIORIDAD. Generación de conexiones tanto entre pedidos como entre pedido-recurso.
+            $this->db->trans_start();
+        
+            if (($pid = $this->MPedidos->alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $demora, $distancia, $referencia, $fecha_actual, $fecha_max, $telefono))!=-1){
+                $this->MConexiones->generar($pid, $lat_origen, $long_origen, $lat_destino, $long_destino);
                 $resultado['data'] = $this->MPedidos->listar($cid);
+                $this->db->trans_complete();
             }else{
                 $resultado['error'] = 'El alta no pudo realizarse correctamente.';
             }

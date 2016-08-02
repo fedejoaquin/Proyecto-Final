@@ -158,7 +158,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
 
             <!-- DIV PARA INGRESAR NUEVO VIAJE -->
-            <div id="div_nuevo_viaje" class="col s12 m6 offset-m3">
+            <div id="div_nuevo_viaje" class="col s12 m8 offset-m2">
                 <div class="row">
                     <h6 class="col s12 m12 center-align">..: NUEVO VIAJE :..</h6>
                 </div> 
@@ -221,23 +221,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <table class="responsive-table striped highlight">
                         <thead>
                             <tr>
-                                <td>ID</td>
-                                <td>Ingreso</td>
                                 <td>Origen</td>
                                 <td>Destino</td>
                                 <td>Margen Arribo</td>
                                 <td>Estado</td>
+                                <td>Oper.</td>
                             </tr>
                         </thead>
                         <tbody id="tblEstadoViajes">
                             <?php foreach ($viajes_actuales as $viaje) { ?>
                                 <tr>
-                                    <td> <?php echo $viaje['id']; ?> </td>
-                                    <td> <?php echo $viaje['ingreso']; ?> </td>
+                                    <?php $datos = "'".$viaje['id']."','".$viaje['ingreso']."','".$viaje['estado']."'"; ?>
                                     <td> <?php echo $viaje['origen']; ?> </td>
                                     <td> <?php echo $viaje['destino']; ?> </td>
                                     <td> <?php echo $viaje['max_arribo']; ?> </td>
                                     <td> <?php echo $viaje['estado']; ?> </td>
+                                    <td> 
+                                        <a class="btn-flat" onclick="clientes.viajes.info(<?php echo $datos; ?>)">
+                                            <i class="material-icons">info</i>
+                                        </a>
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -246,7 +249,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             
             <!-- DIV PARA DATOS CLIENTE -->
-            <div id="div_mis_datos" class="col s12 m6 offset-m3 div_hide">
+            <div id="div_mis_datos" class="col s12 m8 offset-m2 div_hide">
                 <div class="row">
                     <h6 class="col s12 m12 center-align">..: MIS DATOS :..</h6>
                 </div>
@@ -291,11 +294,57 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="telefono">Telefono</label>
                     </div>
                     <div class="input-field col s12">
-                        <input id="referencia" name="referencia" type="text">
+                        <input id="referencia" name="referencia" type="text" placeholder="Ej: Rejas verdes; edificio vecino Empresa g.SA">
                         <label for="referencia">Referencia adicional</label>
                     </div>
                     <div class="center">
                         <button class="btn" onclick="clientes.viajes.confirmar()">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="clientes.abrir()">Federico</button>
+        
+        <!-- MODAL INFO ESTADO VIAJE -->
+        <div id="estado_viaje" class="modal">
+            <hr>
+            <h5 class="center">Info Estado Viaje</h5>
+            <hr>
+            <h6 class="center">..: Estado actual en el sistema :..</h6>
+            <div class="modal-content">
+                <div class="row">
+                    <div class="input-field col s6 l2">
+                        <input id="ev_id" type="text">
+                        <label for="ev_id">ID</label>
+                    </div>
+                    <div class="input-field col s12 l6">
+                        <input id="ev_ingreso" type="text">
+                        <label for="ev_ingreso">Ingreso</label>
+                    </div>
+                    <div class="input-field col s12 l4">
+                        <input id="ev_estado" type="text">
+                        <label for="ev_estado">Estado</label>
+                    </div>
+                    <div class="input-field col s12 l6">
+                        <input id="ev_conductor" type="text">
+                        <label for="ev_conductor">Conductor Asociado</label>
+                    </div>
+                    <div class="input-field col s12 l3">
+                        <input id="ev_patente" type="text">
+                        <label for="ev_patente">Patente auto</label>
+                    </div>
+                    <div class="input-field col s12 l3">
+                        <input id="ev_marca" type="text">
+                        <label for="ev_marca">Marca auto</label>
+                    </div>
+                    <div class="input-field col s12 l3">
+                        <input id="ev_modelo" type="text">
+                        <label for="ev_modelo">Modelo auto</label>
+                    </div>
+                    <div class="input-field col s12 l3">
+                        <input id="ev_color" type="text">
+                        <label for="ev_color">Color auto</label>
                     </div>
                 </div>
             </div>

@@ -95,7 +95,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <h2 class="center teal-text"><i class="material-icons">group</i></h2>
                             <h5 class="center">Visión de solidaridad</h5>
                             <p class="light">
-                                Cooperamos para el beneficio cliente-empresa. Nuestro principal objetivo es maximizar las ganancias, así como los beneficios de los clientes; para esto nos basamos en el concepto de solidaridad, explotando los tiempos disponibles de espera de cada cliente, y a la vez asegurando el cumplimientos de los plazos comprometidos, haciendo uso de tecnologías de vanguadia.
+                                Cooperamos para el beneficio cliente-empresa. Nuestro principal objetivo es maximizar las ganancias, así como los beneficios de los clientes; para esto nos basamos en el concepto de solidaridad, explotando los tiempos disponibles de espera de cada cliente, y a la vez asegurando el cumplimientos de los plazos comprometidos, haciendo uso de tecnologías de vanguardia.
                             </p> 
                         </div>
                     </div>

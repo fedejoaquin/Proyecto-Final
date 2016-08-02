@@ -1,5 +1,9 @@
 var clientes = {
     
+abrir : function(){
+    $('#estado_viaje').openModal();
+},
+    
 datos : {
     
     ver : function(){
@@ -56,6 +60,10 @@ viajes : {
     set_margen: function(){
         minutos_adicionales = $('#hora_max').val();
         clientes_vista.viajes.set_margen(minutos_adicionales);
+    },
+    
+    info : function(id, ingreso,estado){
+        clientes_vista.viajes.info(id, ingreso,estado);
     },
     
     validar : function(){
@@ -129,6 +137,22 @@ viajes : {
     confirmar : function(){        
         if ($("#telefono").val().length >= 8){
             //LOGICA PARA CONFIRMAR VIAJE
+            auxiliar.espera.lanzar();
+            clientes_vista.viajes.confirmar();
+            mapa.distancia.calcular(
+                mapa.marcas.latitud('Origen'), 
+                mapa.marcas.longitud('Origen'), 
+                mapa.marcas.latitud('Destino'), 
+                mapa.marcas.longitud('Destino'),
+                clientes.viajes.confirmar_post
+            );
+        }else{  
+            auxiliar.mensaje("Debe ingresar un número de teléfono válido.", 3500, 'toast-error');
+        }
+    },
+    
+    confirmar_post : function(error, demora, distancia){
+        if (error === undefined){
             $.ajax({
                 data: {
                     origen: $("#origen_viaje").val(),
@@ -139,7 +163,9 @@ viajes : {
                     lat_origen: mapa.marcas.latitud('Origen'), 
                     long_origen: mapa.marcas.longitud('Origen'), 
                     lat_destino: mapa.marcas.latitud('Destino'), 
-                    long_destino: mapa.marcas.longitud('Destino')
+                    long_destino: mapa.marcas.longitud('Destino'),
+                    demora : demora,
+                    distancia : distancia
                 },
                 url:   '/PF/clientes/alta_pedido',
                 type:  'post',
@@ -154,7 +180,7 @@ viajes : {
                     auxiliar.espera.detener();
                     if (respuesta['error'] === undefined){
                         auxiliar.mensaje("Pedido solicitado correctamente.",3500,'toast-ok');
-                        clientes_vista.viajes.confirmar(respuesta['data']);
+                        clientes_vista.viajes.confirmar_post(respuesta['data']);
                     }else{
                         auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
                     }
@@ -162,7 +188,8 @@ viajes : {
             });
             clientes.viajes.puede_confirmar = false;
         }else{
-            auxiliar.mensaje("Debe ingresar un número de teléfono válido.", 3500, 'toast-error');
+            auxiliar.espera.detener();
+            auxiliar.mensaje(error, 3500, 'toast-error');
         }
     },
     

@@ -52,11 +52,22 @@ viajes : {
         $("#hora_arribo").val(fecha_parseada);
     },
     
+    info : function(id, ingreso,estado){
+        $("#ev_id").val(id);
+        $("#ev_ingreso").val(ingreso);
+        $("#ev_estado").val(estado);
+        $('#estado_viaje').openModal();
+    },
+    
     pre_confirmar : function(){
         $("#confirmar_viaje").openModal();
     },
     
-    confirmar : function(datos){
+    confirmar : function(){
+        $("#confirmar_viaje").closeModal();
+    },
+    
+    confirmar_post : function(datos){
         $("#tblEstadoViajes").empty();
         
         for(i=0; i<datos.length; i++){
@@ -64,14 +75,6 @@ viajes : {
             var row = datos[i];
             
             tr = $("<tr></tr>");
-            
-            td = $('<td></td>');
-            $(td).text(row['id']);
-            $(tr).append(td);
-
-            td = $('<td></td>');
-            $(td).text(row['ingreso']);
-            $(tr).append(td);
             
             td = $('<td></td>');
             $(td).text(row['origen']);
@@ -87,6 +90,17 @@ viajes : {
             
             td = $('<td></td>');
             $(td).text(row['estado']);
+            $(tr).append(td);
+            
+            td = $('<td></td>');
+            a = $('<a></a>');
+            i_info = $('<i></i>');
+            $(i_info).attr('class','material-icons');
+            $(i_info).text('info');
+            $(a).attr('class', 'btn-flat');
+            $(a).attr('onClick', 'clientes.viajes.info("'+row['id']+'","'+row['ingreso']+'","'+row['estado']+'")');
+            $(a).append(i_info);
+            $(td).append(a);
             $(tr).append(td);
             
             $("#tblEstadoViajes").append(tr);
@@ -150,14 +164,6 @@ viajes : {
             tr = $("<tr></tr>");
             
             td = $('<td></td>');
-            $(td).text(row['id']);
-            $(tr).append(td);
-
-            td = $('<td></td>');
-            $(td).text(row['ingreso']);
-            $(tr).append(td);
-            
-            td = $('<td></td>');
             $(td).text(row['origen']);
             $(tr).append(td);
             
@@ -171,6 +177,17 @@ viajes : {
             
             td = $('<td></td>');
             $(td).text(row['estado']);
+            $(tr).append(td);
+            
+            td = $('<td></td>');
+            a = $('<a></a>');
+            i_info = $('<i></i>');
+            $(i_info).attr('class','material-icons');
+            $(i_info).text('info');
+            $(a).attr('class', 'btn-flat');
+            $(a).attr('onClick', 'clientes.viajes.info("'+row['id']+'","'+row['ingreso']+'","'+row['estado']+'")');
+            $(a).append(i_info);
+            $(td).append(a);
             $(tr).append(td);
             
             $("#tblEstadoViajes").append(tr);
