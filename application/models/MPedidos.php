@@ -56,12 +56,33 @@ class MPedidos extends CI_Model {
     }
     
     /**
+     * Computa la eliminación del registro de las tablas Pedidos y Pedidos Procesados, cuyo id es $id.
+     * Retorna true o false, indicando operación exitosa o fallida.
+     */
+    public function eliminar($id){
+        $this->db->trans_start();
+        
+        $this->db->where('id', $id);
+        $resultado = $this->db->delete('Pedidos');
+        
+        $this->db->where('id_pedido', $id);
+        $resultado = $resultado && $this->db->delete('Pedidos_procesados');
+        
+        if ($resultado){
+            $this->db->trans_complete();
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
      * Computa y retorna los registros de pedidos de un cliente cuyo id es $id; para esto considera
      * sólo los pedidos que aún están en proceso de atención, excluyendo aquellos ya finalizados.
-     * $resultado = Array(Id, Ingreso, Origen, Destino, Max_arribo, Estado).
+     * $resultado = Array(Id, Ingreso, Origen, Destino, Lat_origen, Long_origen, Lat_destino, Long_destino, Max_arribo, Estado, Id_recurso).
      */
     public function listar($id){
-        $consulta = 'SELECT p.id, p.ingreso, p.origen, p.destino, p.max_arribo, pp.estado ';
+        $consulta = 'SELECT p.id, p.ingreso, p.origen, p.destino, p.lat_origen, p.long_origen, p.lat_destino, p.long_destino, p.max_arribo, pp.estado, pp.id_recurso ';
         $consulta .= 'FROM Pedidos p LEFT JOIN Pedidos_procesados pp ';
         $consulta .= 'ON p.id = pp.id_pedido ';
         $consulta .= 'WHERE p.id_cliente = '.$id.' ';
@@ -91,7 +112,7 @@ class MPedidos extends CI_Model {
     }
     
     /**
-     * Computa y retorna los registros de pedidos que despachados o a despachar (estado = Despachado, A_despachar)
+     * Computa y retorna los registros de pedidos que se encuentran despachados o a despachar (estado = Despachado, A_despachar)
      * $resultado = Array(Id, Lat_origen, Long_origen, Lat_destino, Long_destino).
      */
     public function get_despachados(){
@@ -102,6 +123,38 @@ class MPedidos extends CI_Model {
         
         $query = $this->db->query($consulta);
         $resultado = $query->result_array();
+        
+        return $resultado;
+    }
+    
+    /**
+     * Computa y retorna la información asociada a un pedido cuyo id es $id.
+     * $resultado = Array(Id, Id_cliente, Lat_origen, Long_origen, Lat_destino, Long_destino, Referencia_adicional, 
+     *                    Telefono, Origen, Destino, Ingreso, Salida, Max_arribo, Demora, Distancia).
+     */
+    public function get_info($pid){
+        $consulta = 'SELECT * ';
+        $consulta .= 'FROM Pedidos ';
+        $consulta .= 'WHERE id = '.$pid.' ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->row_array();
+        
+        return $resultado;
+    }
+    
+    /**
+     * Computa y retorna el registro en el que se asocia un dado pedido cuyo id es $id,
+     * con algún recurso.
+     * $resultado = Array(Id_pedido, Id_recurso, Orden, Estado). 
+     */
+    public function get_asociacion($pid){
+        $consulta = 'SELECT * ';
+        $consulta .= 'FROM Pedidos_procesados ';
+        $consulta .= 'WHERE id_pedido = '.$pid.' ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->row_array();
         
         return $resultado;
     }

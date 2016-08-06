@@ -2,7 +2,31 @@
 class MHistorialPedidos extends CI_Model {
     
     /**
+     * Computa el alta de un nuevo pedido en la tabla Historial_pedidos.
+     * Return true o false en caso de operacion exitosa o fallida.
+     */
+    public function alta($id_cliente, $fecha, $egreso, $max_arribo, $origen, $destino, $dni, $id_calificacion){
+        $time_egreso = new DateTime($egreso);
+        $time_arribo = new DateTime($max_arribo);
+        
+        $cumplio = $time_egreso <= $time_arribo;
+        
+        $datos = array(
+            'id_cliente' => $id_cliente,
+            'fecha' => $fecha,
+            'origen' => $origen,
+            'destino' => $destino,
+            'dni_conductor' => $dni,
+            'id_calificacion' => $id_calificacion,
+            'a_tiempo' => $cumplio
+        );
+        
+        return $this->db->insert('Historial_pedidos', $datos);
+    }
+    
+    /**
      * Computa y retorna el listado de viajes realizados por un cliente con id_cliente $id.
+     * $resultado = Array(Fecha, Origen, Destino, A_tiempo, Nombre).
      */
     public function listar($id){
         $consulta = 'SELECT hp.fecha, hp.origen, hp.destino, hp.a_tiempo, e.nombre ';

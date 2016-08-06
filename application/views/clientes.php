@@ -2,7 +2,6 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <!DOCTYPE html>
-
 <!doctype html>
 
 <html lang="en">
@@ -231,16 +230,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <tbody id="tblEstadoViajes">
                             <?php foreach ($viajes_actuales as $viaje) { ?>
                                 <tr>
-                                    <?php $datos = "'".$viaje['id']."','".$viaje['ingreso']."','".$viaje['estado']."'"; ?>
+                                    <?php $datos = "'".$viaje['id']."','".$viaje['ingreso']."','".$viaje['estado']."',".$viaje['id_recurso']; ?>
                                     <td> <?php echo $viaje['origen']; ?> </td>
                                     <td> <?php echo $viaje['destino']; ?> </td>
                                     <td> <?php echo $viaje['max_arribo']; ?> </td>
                                     <td> <?php echo $viaje['estado']; ?> </td>
                                     <td> 
-                                        <a class="btn-flat" onclick="clientes.viajes.info(<?php echo $datos; ?>)">
+                                        <a class="btn-floating" onclick="clientes.viajes.info(<?php echo $datos; ?>)">
                                             <i class="material-icons">info</i>
                                         </a>
+                                        <?php 
+                                        if ($viaje['estado'] !== "Finalizado"){ 
+                                            $clase = "disabled";
+                                        }else{
+                                            $clase = "";
+                                        }?>
+                                        <a class="btn-floating <?php echo $clase;?>" onclick="clientes.viajes.calificacion.calificar(<?php echo $viaje['id'].",".$viaje['id_recurso'].",'".$viaje['estado']."'"; ?>)">
+                                            <i class="material-icons">stars</i>
+                                        </a>
                                     </td>
+                                    
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -294,7 +303,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="telefono">Telefono</label>
                     </div>
                     <div class="input-field col s12">
-                        <input id="referencia" name="referencia" type="text" placeholder="Ej: Rejas verdes; edificio vecino Empresa g.SA">
+                        <input id="referencia" name="referencia" type="text" placeholder="Ej: Rejas verdes; edificio vecino Empresa g.SA" maxlength="50">
                         <label for="referencia">Referencia adicional</label>
                     </div>
                     <div class="center">
@@ -303,8 +312,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
         </div>
-        
-        <button onclick="clientes.abrir()">Federico</button>
         
         <!-- MODAL INFO ESTADO VIAJE -->
         <div id="estado_viaje" class="modal">
@@ -315,36 +322,80 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="modal-content">
                 <div class="row">
                     <div class="input-field col s6 l2">
-                        <input id="ev_id" type="text">
+                        <input id="ev_id" type="text" value="" placeholder="">
                         <label for="ev_id">ID</label>
                     </div>
                     <div class="input-field col s12 l6">
-                        <input id="ev_ingreso" type="text">
+                        <input id="ev_ingreso" type="text" value="" placeholder="">
                         <label for="ev_ingreso">Ingreso</label>
                     </div>
                     <div class="input-field col s12 l4">
-                        <input id="ev_estado" type="text">
+                        <input id="ev_estado" type="text" value="" placeholder="">
                         <label for="ev_estado">Estado</label>
                     </div>
                     <div class="input-field col s12 l6">
-                        <input id="ev_conductor" type="text">
+                        <input id="ev_conductor" type="text" value="" placeholder="">
                         <label for="ev_conductor">Conductor Asociado</label>
                     </div>
                     <div class="input-field col s12 l3">
-                        <input id="ev_patente" type="text">
+                        <input id="ev_patente" type="text" value="" placeholder="">
                         <label for="ev_patente">Patente auto</label>
                     </div>
                     <div class="input-field col s12 l3">
-                        <input id="ev_marca" type="text">
+                        <input id="ev_marca" type="text" value="" placeholder="">
                         <label for="ev_marca">Marca auto</label>
                     </div>
                     <div class="input-field col s12 l3">
-                        <input id="ev_modelo" type="text">
+                        <input id="ev_modelo" type="text" value="" placeholder="">
                         <label for="ev_modelo">Modelo auto</label>
                     </div>
                     <div class="input-field col s12 l3">
-                        <input id="ev_color" type="text">
+                        <input id="ev_color" type="text" value="" placeholder="">
                         <label for="ev_color">Color auto</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODAL CALIFICAR VIAJE -->
+        <div id="calificar_viaje" class="modal">
+            <hr>
+            <h5 class="center">Calificando viaje</h5>
+            <hr>
+            <h6 class="center">..: Su opinión nos resulta de interés :..</h6>
+            <div class="modal-content">
+                <div class="row">
+                    <div class="input-field col s6 m2 offset-m1">
+                        <input id="cv_id" type="text" disabled value="" placeholder="">
+                        <label for="cv_id">ID Viaj.</label>
+                    </div>
+                    <div class="input-field col s6 m2">
+                        <input id="cv_id_recurso" type="text" disabled value="" placeholder="">
+                        <label for="cv_id_recuros">ID Rec.</label>
+                    </div>
+                    <div class="input-field col m2">
+                        <input id="cv_valor" disabled type="number" placeholder="0">
+                        <label for="cv_valor">Calif.</label>
+                    </div>
+                    <div class="input-field col s12 m4">
+                        <div class="divValoracion">
+                            <div id="e1" class="estrellasValoracion"></div>
+                            <div id="e2" class="estrellasValoracion"></div>
+                            <div id="e3" class="estrellasValoracion"></div>
+                            <div id="e4" class="estrellasValoracion"></div>
+                            <div id="e5" class="estrellasValoracion"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m10 offset-m1">
+                        <input id="cv_comentario" type="text" maxlength="100" value="" placeholder="Mejorariría ...">
+                        <label for="cv_comentario">Comentario adicional</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="center">
+                        <button class="btn" onclick="clientes.viajes.calificacion.confirmar()">OK</button>
                     </div>
                 </div>
             </div>

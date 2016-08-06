@@ -16,4 +16,38 @@ class MRecursos extends CI_Model {
         
         return $resultado;
     }
+    
+    /**
+     * Computa y retorna la información asociada a un recurso cuyo id es $id.
+     * $resultado = Array(Id, Dni, Nombre, Patente, Marca, Modelo, Color).
+     */
+    public function get_info($id){
+        $consulta = 'SELECT r.id, r.dni, e.nombre, r.patente, t.marca, t.modelo, t.color ';
+        $consulta .= 'FROM ( Recursos r LEFT JOIN Empleados e ON r.dni = e.dni ) ';
+        $consulta .= 'LEFT JOIN Taxis t ON r.patente = t.patente ';
+        $consulta .= 'WHERE r.id = '.$id;
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->row_array();
+        
+        return $resultado;        
+    }
+    
+    /**
+     * Computa y retorna los recursos asociados a un dado cliente cuyo id es $cid,
+     * contemplando a aquellos pedidos que se encuentran en estado de despacho o atención
+     * efectiva (estado = A_despachar, Despachado).
+     * $resultado = Array(Id_pedido, Id_recurso, Ult_latitud, Ult_longitud).
+     */
+    public function get_asociados($cid){
+        $consulta = 'SELECT p.id as id_pedido, r.id as id_recurso, r.ult_latitud, r.ult_longitud  ';
+        $consulta .= 'FROM ( Pedidos p LEFT JOIN Pedidos_procesados pp ON p.id = pp.id_pedido ) ';
+        $consulta .= 'LEFT JOIN Recursos r ON r.id = pp.id_recurso ';
+        $consulta .= 'WHERE ( p.id_cliente = '.$cid.') AND ( pp.estado = "A_despachar" OR pp.estado = "Despachado") ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
+        
+        return $resultado;    
+    }
 }

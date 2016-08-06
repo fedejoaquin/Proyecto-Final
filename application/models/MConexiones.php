@@ -104,4 +104,29 @@ class MConexiones extends CI_Model {
             }
         }
     }
+    
+    /**
+     * Elimina todas las conexiones existentes en las tablas Conexiones y Conexiones_taxi, referentes al 
+     * pedido cuyo id es $id.
+     * Retorna true o false indicando operacion exitosa o fallida.
+     */
+    public function eliminar($id){
+        $this->db->trans_start();
+        
+        $this->db->where('id_pedido_a', $id);
+        $resultado = $this->db->delete('Conexiones');
+        
+        $this->db->where('id_pedido_b', $id);
+        $resultado = $resultado && $this->db->delete('Conexiones');
+        
+        $this->db->where('id_pedido', $id);
+        $resultado = $resultado && $this->db->delete('Conexiones_taxis');
+        
+        if ($resultado){
+            $this->db->trans_complete();
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

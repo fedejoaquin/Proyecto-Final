@@ -1,9 +1,5 @@
 var clientes = {
     
-abrir : function(){
-    $('#estado_viaje').openModal();
-},
-    
 datos : {
     
     ver : function(){
@@ -62,8 +58,35 @@ viajes : {
         clientes_vista.viajes.set_margen(minutos_adicionales);
     },
     
-    info : function(id, ingreso,estado){
-        clientes_vista.viajes.info(id, ingreso,estado);
+    info : function(id,ingreso,estado,id_recurso){
+        if (estado !== 'A_despachar' && estado !== 'Despachado' && estado !== 'Finalizado'){
+            clientes_vista.viajes.info(id, ingreso, estado, "Sin asignar","Sin asignar","Sin asignar","Sin asignar","Sin asignar" );
+        }else{
+            auxiliar.espera.lanzar();
+            $.ajax({
+                data: { id_recurso : id_recurso },
+                url:   '/PF/clientes/info_recurso',
+                type:  'post',
+                error: function(response){
+                    auxiliar.espera.detener();
+                    clientes_vista.viajes.info(id, ingreso, estado, "Error","Error","Error","Error","Error" );
+                    auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
+                    auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
+                    auxiliar.mensaje('El pedido no se realizó correctamente.', 5000,'toast-error');
+                },
+                success: function (response){
+                    var respuesta = JSON.parse(response);
+                    auxiliar.espera.detener();
+                    if (respuesta['error'] === undefined){
+                        var rta = respuesta['data'];
+                        clientes_vista.viajes.info(id, ingreso, estado, rta['nombre'],rta['patente'], rta['marca'], rta['modelo'], rta['color']);
+                    }else{
+                        clientes_vista.viajes.info(id, ingreso, estado, "Error","Error","Error","Error","Error" );
+                        auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                    }
+                }
+            });
+        }
     },
     
     validar : function(){
@@ -85,13 +108,13 @@ viajes : {
                     mapa.geocoder().geocode( { 'address': origen }, function(results, status) {
                         if (status === google.maps.GeocoderStatus.OK) {
                             pos_origen = results[0].geometry.location;
-                            mapa.marcas.cambiar('Origen',pos_origen);
+                            mapa.marcas.estaticas.cambiar('Origen',pos_origen);
                             
                             //Localizamos el destino indicado.
                             mapa.geocoder().geocode( { 'address': destino }, function(results, status) {
                                 if (status === google.maps.GeocoderStatus.OK) {
                                     pos_destino = results[0].geometry.location;
-                                    mapa.marcas.cambiar('Destino',pos_destino);
+                                    mapa.marcas.estaticas.cambiar('Destino',pos_destino);
                                     
                                     if (pos_origen.toString() !== pos_destino.toString()){
                                         clientes.viajes.puede_confirmar = true;
@@ -140,10 +163,10 @@ viajes : {
             auxiliar.espera.lanzar();
             clientes_vista.viajes.confirmar();
             mapa.distancia.calcular(
-                mapa.marcas.latitud('Origen'), 
-                mapa.marcas.longitud('Origen'), 
-                mapa.marcas.latitud('Destino'), 
-                mapa.marcas.longitud('Destino'),
+                mapa.marcas.estaticas.latitud('Origen'), 
+                mapa.marcas.estaticas.longitud('Origen'), 
+                mapa.marcas.estaticas.latitud('Destino'), 
+                mapa.marcas.estaticas.longitud('Destino'),
                 clientes.viajes.confirmar_post
             );
         }else{  
@@ -160,10 +183,10 @@ viajes : {
                     margen: $("#hora_max").val(),  
                     referencia: $("#referencia").val(),
                     telefono: $("#telefono").val(),
-                    lat_origen: mapa.marcas.latitud('Origen'), 
-                    long_origen: mapa.marcas.longitud('Origen'), 
-                    lat_destino: mapa.marcas.latitud('Destino'), 
-                    long_destino: mapa.marcas.longitud('Destino'),
+                    lat_origen: mapa.marcas.estaticas.latitud('Origen'), 
+                    long_origen: mapa.marcas.estaticas.longitud('Origen'), 
+                    lat_destino: mapa.marcas.estaticas.latitud('Destino'), 
+                    long_destino: mapa.marcas.estaticas.longitud('Destino'),
                     demora : demora,
                     distancia : distancia
                 },
@@ -191,6 +214,52 @@ viajes : {
             auxiliar.espera.detener();
             auxiliar.mensaje(error, 3500, 'toast-error');
         }
+        mapa.marcas.estaticas.visibilidad('Origen', false);
+        mapa.marcas.estaticas.visibilidad('Destino', false);
+    },
+    
+    calificacion : {
+        calificar : function(id_viaje, id_recurso, estado){
+            if (estado == "Finalizado"){
+                clientes_vista.viajes.calificacion.calificar(id_viaje, id_recurso);
+            }else{
+                auxiliar.mensaje("El viaje aún no finalizó para calificarlo.", 5000, 'toast-error');
+            }
+        },
+
+        confirmar : function(){
+            var id = $('#cv_id').val(); 
+            var id_recurso = $('#cv_id_recurso').val();
+            var calif = $('#cv_valor').val();
+            var comentarios = $('#cv_comentario').val();
+
+            if (calif > 0 ){
+                auxiliar.espera.lanzar();
+                $.ajax({
+                    data: { id_viaje : id, id_recurso: id_recurso, calificacion: calif, comentarios: comentarios },
+                    url:   '/PF/clientes/calificar_viaje',
+                    type:  'post',
+                    error: function(response){
+                        auxiliar.espera.detener();
+                        auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
+                        auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
+                        auxiliar.mensaje('La calificación no se realizó correctamente.', 5000,'toast-error');
+                    },
+                    success: function (response){
+                        var respuesta = JSON.parse(response);
+                        auxiliar.espera.detener();
+                        if (respuesta['error'] === undefined){
+                            clientes_vista.viajes.calificacion.confirmar();
+                            auxiliar.mensaje("El viaje se califico correctamente.", 'toast-ok', 3000);
+                        }else{
+                            auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                        }
+                    }
+                });
+            }else{
+                auxiliar.mensaje("Debe emitir calificación.", 5000, 'toast-error');
+            }
+        }
     },
     
     check : function(){
@@ -207,8 +276,10 @@ viajes : {
                 var respuesta = JSON.parse(response);
                 if (respuesta['error'] === undefined){
                     var data = respuesta['data'];
+                    mapa.marcas.dinamicas.eliminar();
                     clientes_vista.viajes.refresh_historial(data['historial_viajes']);
                     clientes_vista.viajes.refresh_estado_viajes(data['estado_viajes']);
+                    clientes_vista.recursos.refresh_posiciones(data['estado_recursos']);
                 }else{
                     auxiliar.mensaje('El servidor respondió la solicitud y notificó error.', 5000,'toast-error');
                 }  
@@ -223,4 +294,13 @@ viajes : {
 
 $( document ).ready(function(){
     setTimeout('clientes.viajes.check()', 5000); 
+    
+    // Indicamos la lógica ante el hacer click sobre una estrella
+    $('.estrellasValoracion').bind('click', function() {
+        // Obtenemos la estrella sobre la que se hizo click
+        var estrella = this;
+        var puntaje = parseFloat($(estrella).attr('id')[1]);
+        $('#cv_valor').val(puntaje);
+    }); 
+    
 });

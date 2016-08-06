@@ -52,10 +52,15 @@ viajes : {
         $("#hora_arribo").val(fecha_parseada);
     },
     
-    info : function(id, ingreso,estado){
+    info : function(id, ingreso,estado, conductor, patente, marca, modelo, color){
         $("#ev_id").val(id);
         $("#ev_ingreso").val(ingreso);
         $("#ev_estado").val(estado);
+        $('#ev_conductor').val(conductor);
+        $('#ev_patente').val(patente);
+        $('#ev_marca').val(marca);
+        $('#ev_modelo').val(modelo);
+        $('#ev_color').val(color);
         $('#estado_viaje').openModal();
     },
     
@@ -98,7 +103,7 @@ viajes : {
             $(i_info).attr('class','material-icons');
             $(i_info).text('info');
             $(a).attr('class', 'btn-flat');
-            $(a).attr('onClick', 'clientes.viajes.info("'+row['id']+'","'+row['ingreso']+'","'+row['estado']+'")');
+            $(a).attr('onClick', 'clientes.viajes.info("'+row['id']+'","'+row['ingreso']+'","'+row['estado']+'",'+row['id_recurso']+')');
             $(a).append(i_info);
             $(td).append(a);
             $(tr).append(td);
@@ -181,19 +186,58 @@ viajes : {
             
             td = $('<td></td>');
             a = $('<a></a>');
+            a_1 = $('<a></a>');
             i_info = $('<i></i>');
+            i_star = $('<i></i>');
             $(i_info).attr('class','material-icons');
             $(i_info).text('info');
-            $(a).attr('class', 'btn-flat');
-            $(a).attr('onClick', 'clientes.viajes.info("'+row['id']+'","'+row['ingreso']+'","'+row['estado']+'")');
+            $(i_star).attr('class','material-icons');
+            $(i_star).text('stars');
+            $(a).attr('class', 'btn-floating');
+            $(a).attr('onClick', 'clientes.viajes.info('+row['id']+',"'+row['ingreso']+'","'+row['estado']+'",'+row['id_recurso']+')');
+            $(a_1).attr('class', 'btn-floating');
+            $(a_1).attr('onClick', 'clientes.viajes.calificacion.calificar('+row['id']+','+row['id_recurso']+',"'+row['estado']+'")');
             $(a).append(i_info);
+            $(a_1).append(i_star);
             $(td).append(a);
+            $(td).append(a_1);
             $(tr).append(td);
             
             $("#tblEstadoViajes").append(tr);
+            
+            pos_o = {'lat': parseFloat(row['lat_origen']), 'lng': parseFloat(row['long_origen'])};
+            pos_d = {'lat': parseFloat(row['lat_destino']), 'lng': parseFloat(row['long_destino'])};
+            
+            mapa.marcas.dinamicas.agregar(row['id'], "Origen_"+row['estado'], pos_o);
+            mapa.marcas.dinamicas.agregar(row['id'], "Destino_"+row['estado'], pos_d);
+        }
+    },
+    
+    calificacion : {
+        calificar : function(id_viaje, id_recurso){
+            $('#cv_id').val(id_viaje);
+            $('#cv_id_recurso').val(id_recurso);
+            $('#cv_valor').val(0);
+            $('#cv_comentario').val("");
+            $('#calificar_viaje').openModal();
+        },
+
+        confirmar : function(){
+            $('#calificar_viaje').closeModal();
         }
     }
     
-}//FIN VIAJES
+},//FIN VIAJES
 
-}//FIN CLIENTES
+recursos : {
+    
+    refresh_posiciones : function(recursos){
+        for (i=0; i<recursos.length; i++){
+            recurso = recursos[i];
+            pos = {'lat': parseFloat(recurso['ult_latitud']), 'lng': parseFloat(recurso['ult_longitud'])};
+            mapa.marcas.dinamicas.agregar("R"+recurso['id_recurso'],"Recurso",pos);
+        }
+    }    
+}//FIN RECURSOS
+
+}//FIN CLIENTES   

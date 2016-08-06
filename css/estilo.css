@@ -71,8 +71,41 @@
     background-color: #852700; 
 }
 
+/* Estilo para calificaciones */
 
-/* Custom Stylesheet for parallax*/
+.estrellasValoracion {
+    background: url('../img/estrellas/estrellaVacia.png') no-repeat;
+    float:      left;
+    height:     24px;
+    padding:    2px;
+    width:      24px;
+}
+
+.divValoracion {
+    border:     1px solid #CCC;
+    overflow:   visible;
+    padding:    10px;
+    position:   relative;
+    width:      150px;
+    height:     45px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.divValoracion:hover{
+    border:     1px solid #666;
+}
+
+.estrellaValoracion {
+    background: url('../img/estrellas/estrellaLlena.png') no-repeat;
+}
+
+.estrellaVotar {
+    background: url('../img/estrellas/estrellaHover.png') no-repeat;
+}
+
+
+/* Custom Stylesheet for parallax */
 
 nav ul a,
 nav .brand-logo {

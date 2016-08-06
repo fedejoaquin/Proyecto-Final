@@ -30,6 +30,24 @@ $(document).ready(function(){
         $("#div_registrar").hide();
         $("#div_ingresar").show("size");
     });
+    
+    // Evento de mouse por encima de las estrellas
+    $('.estrellasValoracion').hover(
+        // El mouse se posiciona sobre el elemento
+        function(){
+            // Rellenamos las estrellas desde la primera y hasta la actual 
+            $(this).prevAll().andSelf().addClass('estrellaVotar');
+
+            // Quitamos relleno a las estrellas desde la siguiente a la actual y hasta la última
+            $(this).nextAll().removeClass('estrellaValoracion'); 
+         },
+
+        // El mouse deja de posicionarse sobre el elemento
+        function(){
+            // Quitamos relleno a las estrellas que se rellenaron
+            $(this).prevAll().andSelf().removeClass('estrellaVotar');
+        }
+    );
 });
 
 var auxiliar = {
