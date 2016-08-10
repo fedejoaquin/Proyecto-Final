@@ -26,14 +26,18 @@ class MHistorialPedidos extends CI_Model {
     
     /**
      * Computa y retorna el listado de viajes realizados por un cliente con id_cliente $id.
+     * Lista una cantidad de $limite, si este valor es mayor o igual a 1; caso contrario, lista todos.
      * $resultado = Array(Fecha, Origen, Destino, A_tiempo, Nombre).
      */
-    public function listar($id){
+    public function listar($id, $limite){
         $consulta = 'SELECT hp.fecha, hp.origen, hp.destino, hp.a_tiempo, e.nombre ';
         $consulta .= 'FROM historial_pedidos hp LEFT JOIN empleados e ';
         $consulta .= 'ON hp.dni_conductor = e.dni ';
         $consulta .= 'WHERE hp.id_cliente = '.$id.' ';
         $consulta .= 'ORDER BY fecha DESC ';
+        if ($limite >= 1 ){
+            $consulta .= 'LIMIT '.$limite.' ';
+        }
         
         $query = $this->db->query($consulta);
         $resultado = $query->result_array();

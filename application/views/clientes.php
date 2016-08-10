@@ -409,8 +409,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         <!-- FOOTER -->
         <?php include 'componentes/footer.phtml'; ?>
-        <div id="mapa">
-            
-        </div>
     </body>
 </html>

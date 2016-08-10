@@ -2,12 +2,52 @@
 class MRecursos extends CI_Model {
     
     /**
+     * Computa la liberación de los recursos indicados en $ids_recursos, asignándoles el estado "Desocupado"
+     * en la tabla Recursos.
+     * Retorna true o false, indicando operación exitosa o fallida.
+     */
+    public function liberar($ids_recursos){
+        
+        $data = array( 'estado' => 'Desocupado' );
+        $this->db->where_in('id', $ids_recursos);
+        return $this->db->update('Recursos', $data);
+    }
+    
+    /**
+     * Computa la ocupación de los recursos indicados en $ids_recursos, asignándoles el estado "Ocupado"
+     * en la tabla Recursos.
+     * Retorna true o false, indicando operación exitosa o fallida.
+     */
+    public function ocupar($ids_recursos){
+        
+        $data = array( 'estado' => 'Ocupado' );
+        $this->db->where_in('id', $ids_recursos);
+        return $this->db->update('Recursos', $data);
+    }
+    
+    /**
      * Computa y retorna los registros de recursos que se encuentran desocupados
      * (estado = desocupado)
      * $resultado = Array(Id, Dni, Patente, Ult_latitud, Ult_longitud).
      */
     public function get_desocupados(){
         $consulta = 'SELECT id, dni, patente, ult_latitud, ult_longitud ';
+        $consulta .= 'FROM Recursos ';
+        $consulta .= 'WHERE estado = "Desocupado" ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
+        
+        return $resultado;
+    }
+    
+        /**
+     * Computa y retorna los registros de recursos que se encuentran desocupados
+     * (estado = desocupado)
+     * $resultado = Array(Id).
+     */
+    public function get_desocupados_resumido(){
+        $consulta = 'SELECT id ';
         $consulta .= 'FROM Recursos ';
         $consulta .= 'WHERE estado = "Desocupado" ';
         

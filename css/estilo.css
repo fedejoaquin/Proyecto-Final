@@ -56,6 +56,10 @@
     height: 500px;
 }
 
+.mapa_simulador{
+    height: 600px;
+}
+
 .toast-ok{
     color: rgba(255,255,255,0.90);
     background-color: green;

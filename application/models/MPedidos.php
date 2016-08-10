@@ -95,6 +95,77 @@ class MPedidos extends CI_Model {
     }
     
     /**
+     * Computa la finalización de los pedidos indicados en $ids_pedidos, asignándoles el estado "Finalizado"
+     * en la tabla Pedidos_procesados.
+     * Retorna true o false, indicando operación exitosa o fallida.
+     */
+    public function finalizar($ids_pedidos){
+        
+        $data = array( 'estado' => 'Finalizado' );
+        $this->db->where_in('id_pedido', $ids_pedidos);
+        return $this->db->update('Pedidos_procesados', $data);
+    }
+    
+    /**
+     * Computa el despacho de aquellos pedidos asociados a un recurso cuyo id pertenece a $recursos.
+     * En caso de la existencia de más de un pedido asociado a un mismo recurso, se despacha aquel cuyo columna
+     * orden sea menor.
+     * $retorno['pedidos_despachados'] = Array(Id_pedido) = Indica los Id_pedido despachados.
+     * $retorno['recursos_ocupados'] = Array(Id_recurso) = Indica los Id_recurso ocupados.
+     * $retorno['resultado'] = True o False indicando operación exitosa o no.
+     */
+    public function despachar($recursos){
+        
+        $a_despachar = array();
+        $a_ocupar = array();
+        $retorno = array();
+        
+        //Seleccionamos los próximos pedidos que deben ser despachados, ya que se 
+        //encuentran asociados al recurso liberado recientemente.
+        foreach ($recursos as $recurso){
+            $consulta_seleccion = 'SELECT id_pedido ';
+            $consulta_seleccion .= 'FROM Pedidos_procesados ';
+            $consulta_seleccion .= 'WHERE id_recurso = '.$recurso['id'].' AND estado = "A_despachar" ';
+            $consulta_seleccion .= 'ORDER BY orden ';
+            
+            $query = $this->db->query($consulta_seleccion);
+            $resultado = $query->row_array();
+            
+            if (!empty($resultado)){
+                array_push($a_despachar, $resultado['id_pedido']);
+                array_push($a_ocupar, $recurso['id']);
+            }
+        }
+        
+        //Si existen pedidos a despachar.
+        if (!empty($a_despachar)){
+            
+            //Por cada recurso a despachar, se actualiza su estado a despachado en la tabla Pedidos_procesados.
+            $data = array(
+                'estado' => 'Despachado'
+            );
+
+            $this->db->where_in('id_pedido', $a_despachar);
+            if ($this->db->update('Pedidos_procesados', $data)){
+                $retorno['resultado'] = true;
+                $retorno['pedidos_despachados'] = $a_despachar;
+                $retorno['recursos_ocupados'] = $a_ocupar;
+                return $retorno;
+            }else{
+                $retorno['resultado'] = false;
+                $retorno['pedidos_despachados'] = array();
+                $retorno['recursos_ocupados'] = array();
+                return $retorno;
+            }
+        }else{
+            $retorno['resultado'] = true;
+            $retorno['pedidos_despachados'] = array();
+            $retorno['recursos_ocupados'] = array();
+            return $retorno;
+        }
+    }
+    
+    /**
      * Computa y retorna los registros de pedidos que aún no se despacharon ni se encuentran en proceso
      * de despacho (estado = procesando, aceptado)
      * $resultado = Array(Id, Lat_origen, Long_origen, Lat_destino, Long_destino).
@@ -155,6 +226,39 @@ class MPedidos extends CI_Model {
         
         $query = $this->db->query($consulta);
         $resultado = $query->row_array();
+        
+        return $resultado;
+    }
+    
+    /**
+     * Computa y retorna los pedidos realizados por el cliente, que están finalizados y sin
+     * calificar.
+     * $resultado = Array(Id).
+     */
+    public function get_sin_calificar($cid){
+        $consulta = 'SELECT p.id ';
+        $consulta .= 'FROM Pedidos p LEFT JOIN Pedidos_procesados pp ON p.id = pp.id_pedido ';
+        $consulta .= 'WHERE p.id_cliente = '.$cid.' AND pp.estado = "Finalizado" ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
+        
+        return $resultado;
+    }
+    
+    /**
+     * Computa y retorna los datos asociados a los pedidos recientemente despachados y cuyos ids pertenecen a 
+     * $ids_pedidos, para el funcionamiento del simulador.
+     * $resultado = Array(Id_pedido, Id_recurso, Origen, Destino, Lat_origen, Long_origen, Lat_recurso, Long_recurso, Lat_destino, Long_destino).
+     */
+    public function get_datos_simulacion($ids_pedidos){
+        $consulta = 'SELECT pp.id_pedido, pp.id_recurso, p.origen, p.destino, p.lat_origen, p.long_origen, r.ult_latitud as lat_recurso, r.ult_longitud as long_recurso, p.lat_destino, p.long_destino ';
+        $consulta .= 'FROM (Pedidos p LEFT JOIN Pedidos_procesados pp ON p.id = pp.id_pedido) ';
+        $consulta .= 'LEFT JOIN Recursos r ON r.id = pp.id_recurso ';
+        $consulta .= 'WHERE pp.id_pedido IN ('.  implode(",", $ids_pedidos) .' ) ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
         
         return $resultado;
     }
