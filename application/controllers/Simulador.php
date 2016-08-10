@@ -75,7 +75,8 @@ class Simulador extends CI_Controller {
         if ((count($ids_pedidos) == count($ids_recursos)) && (count($ids_pedidos)!== 0)){
             $this->db->trans_start();
             
-            //Indicamos con estado finalizado los pedidos procesados cuyos id son $ids_pedidos.
+            //Indicamos con estado finalizado los pedidos procesados cuyos id son $ids_pedidos, e indicamos la hora de egreso
+            //en la tabla de Pedidos.
             if ( $this->MPedidos->finalizar($ids_pedidos) ){
                 
                 //Indicamos con estado desocupado los recursos cuyos id son $ids_recursos.
@@ -87,6 +88,36 @@ class Simulador extends CI_Controller {
             }else{
                 $resultado['error'] = 'Se produjo un error al intentar finalizar viajes';
             }   
+        }else{
+            $resultado['error'] = 'No existen datos, o se encuentran corrompidos.';
+        }
+        echo json_encode($resultado);
+    }
+    
+    /**
+     * Computa la actualización de la posición de los recursos cuyos ids se encuentran en $ids_recursos.
+     * Considera las latitudes y longitudes dentro de $latitudes y $longitudes respectivamente. 
+     * 
+     * @return VIA AJAX
+     * $resultado['data'] = Array().
+     * $resultado['error'] = Error en caso de corresponder.
+     */
+    public function actualizar_ultimas_posiciones(){
+        $this->control_origen_ajax();
+        
+        $resultado = array(); 
+        $resultado['data'] = array();
+        
+        $ids_recursos = $this->input->post('ids_recursos');
+        $latitudes = $this->input->post('latitudes');
+        $longitudes = $this->input->post('longitudes');
+        
+        //Si existen datos que procesar, y llegaron adecuadamente.
+        if ((count($ids_recursos) == count($latitudes)) && (count($latitudes) == count($longitudes)) && (count($ids_recursos)!== 0)){
+            //Indicamos la ultima posicion de los recursos cuyos id son $ids_recursos.
+            if ( ! $this->MRecursos->actualizar_posiciones($ids_recursos, $latitudes, $longitudes) ){
+                $resultado['error'] = 'Se produjo un error al intentar liberar recursos.';
+            }
         }else{
             $resultado['error'] = 'No existen datos, o se encuentran corrompidos.';
         }
@@ -105,6 +136,7 @@ class Simulador extends CI_Controller {
     }
     
     public function prueba(){
-        print_r ($this->generar_nuevas_simulaciones());
+        $ids_pedidos = [5,6];
+        print_r($this->MPedidos->finalizar($ids_pedidos));
     }
 }

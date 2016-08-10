@@ -125,7 +125,7 @@ var mapa = {
     
     direcciones : {
         
-        dibujar : function (nombre, posOrigen, posIntermedia, posDestino, callback){
+        dibujar : function (id_pedido,id_recurso, posOrigen, posIntermedia, posDestino, callback){
             var request = {
                 origin: posOrigen,
                 waypoints: [{location: posIntermedia, stopover: false}],
@@ -145,9 +145,9 @@ var mapa = {
                     });
 
                     path.setMap(mapa.map());
-                    caminos[nombre] = path;
+                    caminos[id_pedido] = path;
                     
-                    callback(response);
+                    callback(response, id_pedido, id_recurso);
                 }
             });
         },

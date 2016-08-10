@@ -26,6 +26,24 @@ class MRecursos extends CI_Model {
     }
     
     /**
+     * Computa la actualización de las posiciones de los recursos cuyos ids pertenecen a $ids.
+     * Considera las latitudes y longitudes indicadas en $latitudes y $longitides.
+     * Retorna true o false, indicando operación exitosa o fallida.
+     */
+    public function actualizar_posiciones($ids, $latitudes, $longitudes){
+        $resultado = true;
+        for($i=0; $i<count($ids); $i++){
+            $data = array(
+                'ult_latitud' => $latitudes[$i],
+                'ult_longitud' => $longitudes[$i]
+            );
+            $this->db->where('id', $ids[$i]);
+            $resultado = $resultado && $this->db->update('Recursos', $data);
+        }
+        return $resultado;
+    }
+    
+    /**
      * Computa y retorna los registros de recursos que se encuentran desocupados
      * (estado = desocupado)
      * $resultado = Array(Id, Dni, Patente, Ult_latitud, Ult_longitud).

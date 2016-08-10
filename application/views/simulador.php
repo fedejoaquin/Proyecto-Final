@@ -12,6 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         
         <?php include 'componentes/recursos.phtml'; ?>
         <script src="<?php echo site_url(); ?>js/simulador/controlador.js"></script>
+        <script src="<?php echo site_url(); ?>js/simulador/vista.js"></script>
         <script src="<?php echo site_url(); ?>js/mapa.js"></script>
         <script 
             async defer 

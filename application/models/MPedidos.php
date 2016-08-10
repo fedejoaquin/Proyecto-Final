@@ -96,14 +96,22 @@ class MPedidos extends CI_Model {
     
     /**
      * Computa la finalización de los pedidos indicados en $ids_pedidos, asignándoles el estado "Finalizado"
-     * en la tabla Pedidos_procesados.
+     * en la tabla Pedidos_procesados, e indicando la hora de egreso del sistema en la tabla Pedidos.
      * Retorna true o false, indicando operación exitosa o fallida.
      */
     public function finalizar($ids_pedidos){
         
         $data = array( 'estado' => 'Finalizado' );
         $this->db->where_in('id_pedido', $ids_pedidos);
-        return $this->db->update('Pedidos_procesados', $data);
+        $resultado = $this->db->update('Pedidos_procesados', $data);
+        
+        $fecha_actual = date("Y-m-d H:i:s");
+        
+        $data = array( 'salida' => $fecha_actual );
+        $this->db->where_in('id', $ids_pedidos);
+        $resultado = $resultado && $this->db->update('Pedidos', $data);
+        
+        return $resultado;
     }
     
     /**
