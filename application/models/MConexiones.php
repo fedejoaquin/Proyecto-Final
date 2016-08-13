@@ -2,6 +2,9 @@
 class MConexiones extends CI_Model {
     
     public function generar($pid, $lat_origen, $long_origen, $lat_destino, $long_destino){
+        
+        $resultado = true;
+
         //Destinos desde donde y hacia donde hay que generar conexiones con el pedido actual.
         $destinos_desde_hacia = $this->MPedidos->get_sin_despachar();
         
@@ -67,7 +70,7 @@ class MConexiones extends CI_Model {
                     'demora' => $element->duration->value,
                     'distancia' => $element->distance->value
                 );
-                $this->db->insert('Conexiones',$tupla);
+                $resultado = $resultado && $this->db->insert('Conexiones',$tupla);
             }
         }
         
@@ -83,7 +86,7 @@ class MConexiones extends CI_Model {
                     'demora' => $element->duration->value,
                     'distancia' => $element->distance->value
                 );
-                $this->db->insert('Conexiones',$tupla);
+                $resultado = $resultado && $this->db->insert('Conexiones',$tupla);
             }
         }
         
@@ -100,9 +103,11 @@ class MConexiones extends CI_Model {
                     'demora' => $element->duration->value,
                     'distancia' => $element->distance->value
                 );
-                $this->db->insert('Conexiones_taxis',$tupla);
+                $resultado = $resultado && $this->db->insert('Conexiones_taxis',$tupla);
             }
         }
+        
+        return $resultado;
     }
     
     /**

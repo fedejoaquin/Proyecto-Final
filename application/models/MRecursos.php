@@ -15,14 +15,21 @@ class MRecursos extends CI_Model {
     
     /**
      * Computa la ocupación de los recursos indicados en $ids_recursos, asignándoles el estado "Ocupado"
-     * en la tabla Recursos.
+     * en la tabla Recursos, como así también actualizando el valor de su Stress asociado.
      * Retorna true o false, indicando operación exitosa o fallida.
      */
-    public function ocupar($ids_recursos){
+    public function ocupar($recursos){
+        $resultado = true;
         
-        $data = array( 'estado' => 'Ocupado' );
-        $this->db->where_in('id', $ids_recursos);
-        return $this->db->update('Recursos', $data);
+        foreach($recursos as $recurso){
+            $consulta = 'UPDATE Recursos ';
+            $consulta .= 'SET estado = "Ocupado", stress = stress +'.$recurso['stress'].' ';
+            $consulta .= 'WHERE id = '.$recurso['id'];
+            
+            $resultado = $resultado && $this->db->query($consulta);
+        }
+       
+        return $resultado;
     }
     
     /**

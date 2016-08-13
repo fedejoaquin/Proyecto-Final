@@ -11,6 +11,32 @@ class Simulador extends CI_Controller {
     }
     
     /**
+     * Computa la actualización de la hora del sistema en función del step de avance que
+     * indica cada paso de simulación.
+     * 
+     * @return VIA AJAX
+     * $resultado['data'] = Array().
+     * $resultado['error'] = Error en caso de corresponder.
+     */
+    public function actualizar_hora(){
+        $this->control_origen_ajax();
+        
+        $resultado = array(); 
+        $resultado['data'] = array();
+        
+        $time = $this->input->post('fecha_actual');
+        
+        //Seteamos la nueva hora del sistema
+        if (! $this->MHora->set_hora($time)){
+            $resultado['error'] = 'No se pudo actualizar la hora correctamente';
+        }else{
+            $resultado['data'] = $time;
+        }
+        
+        echo json_encode($resultado);
+    }
+    
+    /**
      * Consulta si existen nuevas simulaciones que realizar; para esto chequea si existen recursos desocupados que a la vez
      * poseen viajes asignados. En el caso de existir recursos con viajes asignados, los despacha.
      * Retorna la información requerida por el simulador para ejecutar los viajes.
@@ -20,7 +46,7 @@ class Simulador extends CI_Controller {
      * $resultado['error'] = Error en caso de corresponder.
      */
     public function generar_nuevas_simulaciones(){
-        //$this->control_origen_ajax();
+        $this->control_origen_ajax();
         
         $resultado = array(); 
         $resultado['data'] = array();
@@ -37,7 +63,7 @@ class Simulador extends CI_Controller {
         if ($retorno['resultado']){
             //Si se despacharon viajes
             if (count($retorno['pedidos_despachados'])!==0){
-                //Se actualiza el estado de los recursos despachados por "Ocupado"
+                //Se actualiza el estado de los recursos despachados por "Ocupado", y el Stress asociado.
                 if ($this->MRecursos->ocupar($retorno['recursos_ocupados'])){
                     //Se generan los metadatos y se retorna el resultado al simulador
                     $resultado['data'] = $this->MPedidos->get_datos_simulacion($retorno['pedidos_despachados']);
@@ -133,10 +159,5 @@ class Simulador extends CI_Controller {
         if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
             redirect(site_url());
         }
-    }
-    
-    public function prueba(){
-        $ids_pedidos = [5,6];
-        print_r($this->MPedidos->finalizar($ids_pedidos));
     }
 }

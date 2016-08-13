@@ -6,7 +6,7 @@ class MPedidos extends CI_Model {
      * con los datos parametrizados.
      * Retorna el id del pedido nuevo. En caso de error, retorna -1.
      */
-    public function alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $demora, $distancia, $referencia, $fecha_actual, $fecha_max, $telefono){
+    public function alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $demora, $distancia, $referencia, $fecha_actual, $fecha_max, $telefono, $prioridad){
         
         $data_pedido = array(
             'id_cliente' => $cid,
@@ -32,7 +32,7 @@ class MPedidos extends CI_Model {
         
         $data_pedido_sin_procesar = array(
             'id_pedido' => $id_pedido,
-            'prioridad' => 1
+            'prioridad' => $prioridad
         );
         
         $data_pedido_procesado = array(
@@ -77,24 +77,6 @@ class MPedidos extends CI_Model {
     }
     
     /**
-     * Computa y retorna los registros de pedidos de un cliente cuyo id es $id; para esto considera
-     * sólo los pedidos que aún están en proceso de atención, excluyendo aquellos ya finalizados.
-     * $resultado = Array(Id, Ingreso, Origen, Destino, Lat_origen, Long_origen, Lat_destino, Long_destino, Max_arribo, Estado, Id_recurso).
-     */
-    public function listar($id){
-        $consulta = 'SELECT p.id, p.ingreso, p.origen, p.destino, p.lat_origen, p.long_origen, p.lat_destino, p.long_destino, p.max_arribo, pp.estado, pp.id_recurso ';
-        $consulta .= 'FROM Pedidos p LEFT JOIN Pedidos_procesados pp ';
-        $consulta .= 'ON p.id = pp.id_pedido ';
-        $consulta .= 'WHERE p.id_cliente = '.$id.' ';
-        $consulta .= 'ORDER BY p.ingreso DESC ';
-        
-        $query = $this->db->query($consulta);
-        $resultado = $query->result_array();
-        
-        return $resultado;
-    }
-    
-    /**
      * Computa la finalización de los pedidos indicados en $ids_pedidos, asignándoles el estado "Finalizado"
      * en la tabla Pedidos_procesados, e indicando la hora de egreso del sistema en la tabla Pedidos.
      * Retorna true o false, indicando operación exitosa o fallida.
@@ -105,7 +87,7 @@ class MPedidos extends CI_Model {
         $this->db->where_in('id_pedido', $ids_pedidos);
         $resultado = $this->db->update('Pedidos_procesados', $data);
         
-        $fecha_actual = date("Y-m-d H:i:s");
+        $fecha_actual = $this->MHora->get_hora()['hora_actual'];
         
         $data = array( 'salida' => $fecha_actual );
         $this->db->where_in('id', $ids_pedidos);
@@ -119,7 +101,7 @@ class MPedidos extends CI_Model {
      * En caso de la existencia de más de un pedido asociado a un mismo recurso, se despacha aquel cuyo columna
      * orden sea menor.
      * $retorno['pedidos_despachados'] = Array(Id_pedido) = Indica los Id_pedido despachados.
-     * $retorno['recursos_ocupados'] = Array(Id_recurso) = Indica los Id_recurso ocupados.
+     * $retorno['recursos_ocupados'] = Array({Id, Stress}) = Indica los Id_recurso ocupados y su stress asociado.
      * $retorno['resultado'] = True o False indicando operación exitosa o no.
      */
     public function despachar($recursos){
@@ -131,9 +113,9 @@ class MPedidos extends CI_Model {
         //Seleccionamos los próximos pedidos que deben ser despachados, ya que se 
         //encuentran asociados al recurso liberado recientemente.
         foreach ($recursos as $recurso){
-            $consulta_seleccion = 'SELECT id_pedido ';
-            $consulta_seleccion .= 'FROM Pedidos_procesados ';
-            $consulta_seleccion .= 'WHERE id_recurso = '.$recurso['id'].' AND estado = "A_despachar" ';
+            $consulta_seleccion = 'SELECT pp.id_pedido, p.demora ';
+            $consulta_seleccion .= 'FROM Pedidos_procesados pp LEFT JOIN pedidos p ON pp.id_pedido = p.id ';
+            $consulta_seleccion .= 'WHERE pp.id_recurso = '.$recurso['id'].' AND pp.estado = "A_despachar" ';
             $consulta_seleccion .= 'ORDER BY orden ';
             
             $query = $this->db->query($consulta_seleccion);
@@ -141,7 +123,7 @@ class MPedidos extends CI_Model {
             
             if (!empty($resultado)){
                 array_push($a_despachar, $resultado['id_pedido']);
-                array_push($a_ocupar, $recurso['id']);
+                array_push($a_ocupar, array('id' => $recurso['id'], 'stress' => $resultado['demora']));
             }
         }
         
@@ -171,6 +153,38 @@ class MPedidos extends CI_Model {
             $retorno['recursos_ocupados'] = array();
             return $retorno;
         }
+    }
+    
+    /**
+     * Computa la actualización de las prioridades de aquellos pedidos que se encuentran sin procesar, y cuyo
+     * id es distinto a $id.
+     * Incrementa la prioridad en un 25%.
+     * Retorna True o False en caso de ejecución exitosa o no.
+     */
+    public function actualizar_prioridades($id){
+        $consulta = 'UPDATE Pedidos_sin_procesar ';
+        $consulta .= 'SET prioridad = prioridad * 1.25 ';
+        $consulta .= 'WHERE id_pedido != '.$id.' ';
+        
+        return $this->db->query($consulta);
+    }
+    
+    /**
+     * Computa y retorna los registros de pedidos de un cliente cuyo id es $id; para esto considera
+     * sólo los pedidos que aún están en proceso de atención, excluyendo aquellos ya finalizados.
+     * $resultado = Array(Id, Ingreso, Origen, Destino, Lat_origen, Long_origen, Lat_destino, Long_destino, Max_arribo, Estado, Id_recurso).
+     */
+    public function listar($id){
+        $consulta = 'SELECT p.id, p.ingreso, p.origen, p.destino, p.lat_origen, p.long_origen, p.lat_destino, p.long_destino, p.max_arribo, pp.estado, pp.id_recurso ';
+        $consulta .= 'FROM Pedidos p LEFT JOIN Pedidos_procesados pp ';
+        $consulta .= 'ON p.id = pp.id_pedido ';
+        $consulta .= 'WHERE p.id_cliente = '.$id.' ';
+        $consulta .= 'ORDER BY p.ingreso DESC ';
+        
+        $query = $this->db->query($consulta);
+        $resultado = $query->result_array();
+        
+        return $resultado;
     }
     
     /**

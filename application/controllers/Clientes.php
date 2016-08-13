@@ -49,18 +49,36 @@ class Clientes extends CI_Controller {
                 $long_destino = $this->input->post('long_destino');
                 $distancia = $this->input->post('distancia');
                 $demora = $this->input->post('demora');
-
-                $fecha_actual = date("Y-m-d H:i:s");
+                
+                $fecha_actual = $this->MHora->get_hora()['hora_actual'];
                 $fecha_suma = strtotime ('+'.$margen.' minute' , strtotime ( $fecha_actual ) ) ;
                 $fecha_max = date("Y-m-d H:i:s", $fecha_suma);
 
-                //Alta de pedido, SIN INDICAR PRIORIDAD. Generación de conexiones tanto entre pedidos como entre pedido-recurso.
+                
+                //ALTA DE PEDIDO
+                //se incrementan los valores de cantidad de viajes, distancias y anticipacion de un cliente, se calcula
+                //la prioridad asociada al cliente, se genera el pedido con los datos necesarios, y luego se construyen los metadatos 
+                //conexiones. 
                 $this->db->trans_start();
-
-                if (($pid = $this->MPedidos->alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $demora, $distancia, $referencia, $fecha_actual, $fecha_max, $telefono))!=-1){
-                    $this->MConexiones->generar($pid, $lat_origen, $long_origen, $lat_destino, $long_destino);
-                    $resultado['data'] = $this->MPedidos->listar($cid);
-                    $this->db->trans_complete();
+                
+                //Sumar viajes
+                if ($this->MClientes->sumar_viaje($cid, $distancia, $margen)){
+                    //Cálculo de prioridad para un dado cliente en función de su historial de viajes
+                    $prioridad = $this->MClientes->calcular_prioridad($cid);
+                    //Alta pedido
+                    if (($pid = $this->MPedidos->alta($cid, $origen, $destino, $lat_origen, $long_origen, $lat_destino, $long_destino, $demora, $distancia, $referencia, $fecha_actual, $fecha_max, $telefono, $prioridad))!=-1){
+                         //Alta conexiones
+                        if ($this->MConexiones->generar($pid, $lat_origen, $long_origen, $lat_destino, $long_destino)){
+                            //Actualiza la prioridad de los pedidos que aún no fueron procesados y esperan
+                            $this->MPedidos->actualizar_prioridades($pid);
+                            $resultado['data'] = $this->MPedidos->listar($cid);
+                            $this->db->trans_complete();
+                        }else{
+                            $resultado['error'] = 'El alta no pudo realizarse correctamente.';
+                        }
+                    }else{
+                        $resultado['error'] = 'El alta no pudo realizarse correctamente.';
+                    }
                 }else{
                     $resultado['error'] = 'El alta no pudo realizarse correctamente.';
                 }

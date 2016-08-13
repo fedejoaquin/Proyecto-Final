@@ -26,14 +26,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="nav-wrapper container">
                 <!-- BRAND LOGO -->
                 <ul class="left">
-                    <li><a class="brand-logo"><img class="img-logo" src="<?php echo site_url()?>img/Auto_Smart.png"</a></li>
+                    <li><a class="brand-logo"><img class="img-logo" src="<?php echo site_url()?>img/Auto_Smart.png" /></a><li>
                 </ul>
                 
                 <!-- BOTONES -->
                 <ul class="right">
-                    <li><a onClick="simulador.hacer()">Configurar</a></li>
-                    <li><a onClick="simulador.hacer2()">Viajes actuales</a></li>
-                    <li><a onClick="simulador.hacer3()">Viajes simulados</a></li>
+                    <li><a>Configurar</a></li>
+                    <li><a>Viajes actuales</a></li>
+                    <li><a>Viajes simulados</a></li>
+                    <li><a id="fecha_sistema"></a></li>
                 </ul>
             </div>
         </nav>

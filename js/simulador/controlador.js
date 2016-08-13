@@ -1,5 +1,6 @@
+var fecha;
 var timeOut = 2000;
-var refresh = 6000;
+var refresh = 6;
 var viajes_a_simular = [];
 
 var simulador = {
@@ -9,6 +10,10 @@ var simulador = {
     tiempo_refresh : function(){ return refresh; },
        
     main : function(){
+        
+        //Actualiza y notifica la hora del sistema
+        simulador.fecha.actualizar_notificar();
+        
         //Consulta las simulaciones a generar.
         simulador.recorridos.consultar_nuevas_simulaciones();
         
@@ -39,7 +44,7 @@ var simulador = {
                 success: function (response){
                     var respuesta = JSON.parse(response);
                     if (respuesta['error'] === undefined){
-                        auxiliar.mensaje('Nuevas simulaciones: OK', 2500, 'toast-ok');
+                        auxiliar.mensaje('Nuevas simulaciones: OK', 1000, 'toast-ok');
                         simulador.logica.construir_recorridos(respuesta['data']);
                     }else{
                         auxiliar.mensaje('Nuevas simulaciones: ERROR', 2500,'toast-error');
@@ -63,11 +68,21 @@ var simulador = {
                 var latitud_actual = mapa.marcas.estaticas.latitud("t"+viaje.id);
                 var longitud_actual = mapa.marcas.estaticas.longitud("t"+viaje.id);
                 
+                console.log("Latitud_actual:");
+                console.log(latitud_actual);
+                console.log("Longitud actual:");
+                console.log(longitud_actual);
+                
                 //Distancia recorrida actualmente, proyectada a partir de la ubicacion actual.
                 var recorrido_actual = latitud_actual / Math.sin(paso_actual.tita);
                 
                 //Tiempo requerido para llegar al punto final del paso actual, en funcion de velocidad del tramo.
-                var tRequerido = Math.abs(( paso_actual.fin - recorrido_actual) / ( pendiente * velocidad ));
+                //var tRequerido = Math.abs(( paso_actual.fin - recorrido_actual) / ( pendiente * velocidad ));
+                var tRequerido = Math.abs(( (paso_actual.fin.lat()/Math.sin( tita )) - recorrido_actual) / ( pendiente * velocidad ));
+                
+                
+                console.log("Tiempo requerido");
+                console.log(tRequerido);
                 
                 //Si aun se debe avanzar por sobre el tramo del paso actual
                 if ( tRequerido >= ( simulador.tiempo_refresh() / 1000) ){
@@ -79,26 +94,42 @@ var simulador = {
                         lng: longitud_actual + avance * Math.cos(tita)
                     };
                     
+                    console.log("Alcanzo el tiempo y actualice marca");
                     mapa.marcas.estaticas.cambiar("t"+viaje['id'], nueva_posicion);
                     
-                    //Si el tiempo requerido es igual al step de simulacion, el viaje esta terminado.
+                    //Si el tiempo requerido es igual al step de simulacion, el step y/o el viaje estan terminados.
                     if ( tRequerido === ( simulador.tiempo_refresh()/1000) ){
-                        viaje.terminado = true;
+                        if ((viaje.paso_actual + 1) === viaje.pasos_totales){
+                            viaje.terminado = true;
+                            console.log("Viaje finalizado con tRequerdio igual a simu y no mas pasos.");
+                        }else{
+                            console.log("Aumento paso con tRequerido igual a simu.");
+                            viaje.paso_actual = viaje.paso_actual + 1;
+                        }
                     }
                 
                 }else{
                     //Si aún quedan pasos por simular, avanzo lo que corresponda por sobre el siguiente paso
                     if ((viaje.paso_actual + 1) < viaje.pasos_totales){
                         
+                        console.log("tRequerido menor a simu y mas pasos por realizar");
+                        
                         //Calculamos la posicion final para el tramo finalizado
-                        var avance = Math.abs(pendiente) * velocidad * (tRequerido);
-                        var nueva_posicion = {
+                        //var avance = Math.abs(pendiente) * velocidad * (tRequerido);
+                        var nueva_posicion = paso_actual.fin;
+                        /**var nueva_posicion = {
                             lat: latitud_actual + avance * Math.sin(tita), 
                             lng: longitud_actual + avance * Math.cos(tita)
-                        };
+                        };*/
+                        
+                        console.log("Nueva posicion:");
+                        console.log(nueva_posicion);
 
                         //Calculamos el tiempo restante de la simulación que debe utilizarse en el proximo tramo
                         var tiempo_restante = (simulador.tiempo_refresh()/1000) - tRequerido;
+                        
+                        console.log("Tiempo restante");
+                        console.log(tiempo_restante);
                         
                         //Estimamos los valores del siguiente paso.
                         var paso_siguiente = viaje.pasos[viaje.paso_actual+1];
@@ -108,11 +139,17 @@ var simulador = {
                         
                         //Estimamos el avance por sobre el paso siguiente considerando su velocidad y el tiempo restante.
                         var avance_siguiente = Math.abs(pendiente_siguiente) * velocidad_siguiente * (tiempo_restante);
-                    
+                        
+                        console.log("Avance siguiente");
+                        console.log(avance_siguiente);
+                        
                         var nueva_posicion_siguiente = {
-                            lat: nueva_posicion.lat + avance_siguiente * Math.sin(tita_siguiente), 
-                            lng: nueva_posicion.lng + avance_siguiente * Math.cos(tita_siguiente)
+                            lat: nueva_posicion.lat() + avance_siguiente * Math.sin(tita_siguiente), 
+                            lng: nueva_posicion.lng() + avance_siguiente * Math.cos(tita_siguiente)
                         };
+                        
+                        console.log("Nueva posicion siguiente");
+                        console.log(nueva_posicion_siguiente);
                         
                         //Actualizamos el valor del paso actual.
                         viaje.paso_actual = viaje.paso_actual + 1;
@@ -121,19 +158,22 @@ var simulador = {
                         mapa.marcas.estaticas.cambiar("t"+viaje['id'], nueva_posicion_siguiente);
                       
                     }else{
+                        console.log("tRequerido es menor a simu y no hay mas pasos");
+                        console.log(tRequerido);
+                        
                         //Si no quedan pasos, el viaje está finalizado.
                         viaje.terminado = true;
                         
                         //Estimo el avance con el tiempo que se restaba simular y era menor al de refresh 
-                        var avance = Math.abs(pendiente) * velocidad * (tRequerido);
-                        var nueva_posicion = {
+                        //var avance = Math.abs(pendiente) * velocidad * (tRequerido);
+                        var nueva_posicion = paso_actual.fin;
+                        /**var nueva_posicion = {
                             lat: latitud_actual + avance * Math.sin(tita), 
                             lng: longitud_actual + avance * Math.cos(tita)
-                        };
+                        };**/
                         mapa.marcas.estaticas.cambiar("t"+viaje['id'], nueva_posicion);
                     }
                 }
-                
             }
             
         }, //FIN SIMULAR PASO
@@ -165,7 +205,7 @@ var simulador = {
                     success: function (response){
                         var respuesta = JSON.parse(response);
                         if (respuesta['error'] === undefined){
-                            auxiliar.mensaje('Últimas posiciones: OK', 2500, 'toast-ok');
+                            auxiliar.mensaje('Últimas posiciones: OK', 1000, 'toast-ok');
                         }else{
                             auxiliar.mensaje('Últimas posiciones: ERROR', 2500,'toast-error');
                             auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
@@ -259,7 +299,8 @@ var simulador = {
                 paso.tita = Math.atan2( ( fin.lat() - inicio.lat()), ( fin.lng() - inicio.lng() ) );
                 
                 //Calculamos la latitud final proyectada segun el angulo tita, para la recta entre inicio y fin.
-                paso.fin = fin.lat() / Math.sin( paso.tita );
+                //paso.fin = fin.lat() / Math.sin( paso.tita );
+                paso.fin = fin;
                 
                 //Calculamos la velocidad real requerida por el tramo para cumplir con la demora estimada.
                 paso.velocidad = (steps[i].distance.value / 1000) / (steps[i].duration.value / 3600 ) * KPH_TO_GPS;
@@ -268,10 +309,59 @@ var simulador = {
             }           
             viajes_a_simular.push(viaje);
         }
+    },//FIN LOGICA
+    
+    
+    fecha : {
+        
+        init: function(){
+            fecha = new Date();
+            simulador_vista.fecha.init( simulador.fecha.parsear(fecha) );
+        },
+       
+        actualizar_notificar: function(){
+            //Actualizo la hora sumandole los segundos del step.
+            fecha.setSeconds(fecha.getSeconds() + simulador.tiempo_refresh());
+            var fecha_parseada = simulador.fecha.parsear(fecha);
+            
+            simulador_vista.fecha.actualizar_notificar(fecha_parseada);
+            
+            $.ajax({
+                data: { fecha_actual: fecha_parseada },
+                url:   '/PF/simulador/actualizar_hora',
+                type:  'post',
+                error: function(response){
+                    auxiliar.mensaje('Actualizar hora: FALLO', 2500,'toast-error');
+                },
+                success: function (response){
+                    var respuesta = JSON.parse(response);
+                    if (respuesta['error'] !== undefined){
+                        auxiliar.mensaje('Actualizar hora: ERROR', 2500,'toast-error');
+                        auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                    }
+                }
+            });
+        },
+        
+        parsear : function(fecha){
+            dia = fecha.getDate();
+            mes = fecha.getMonth() + 1;
+            anio = fecha.getFullYear();
+            
+            hora = fecha.getHours();
+            minutos = fecha.getMinutes();
+            segundos = fecha.getSeconds();
+
+            fecha_parseada = anio + "/" + (mes < 10 ? "0"+mes : mes ) + "/" + (dia < 10 ? "0"+dia : dia ) + " ";
+            fecha_parseada += (hora < 10 ? "0"+hora : hora ) + ":" + (minutos<10 ? "0"+minutos : minutos) + ":" + (segundos<10 ? "0"+segundos : segundos);
+            
+            return fecha_parseada;
+        }
     }
 
 };//FIN SIMULADOR
 
 $( document ).ready(function(){
+    simulador.fecha.init();
     setTimeout('simulador.main()', simulador.tiempo_timeOut());
 });
