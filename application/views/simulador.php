@@ -31,7 +31,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 
                 <!-- BOTONES -->
                 <ul class="right">
-                    <li><a>Configurar</a></li>
+                    <li><a onclick="avanzar()">Configurar</a></li>
                     <li><a>Viajes actuales</a></li>
                     <li><a>Viajes simulados</a></li>
                     <li><a id="fecha_sistema"></a></li>
