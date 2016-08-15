@@ -31,22 +31,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 
                 <!-- BOTONES -->
                 <ul class="right">
-                    <li><a onclick="avanzar()">Configurar</a></li>
-                    <li><a>Viajes actuales</a></li>
-                    <li><a>Viajes simulados</a></li>
+                    <li><a>Step avance:</a></li>
+                    <li>
+                        <p class="range-field">
+                            <input type="range" id="tiempo_refresh" min="1" max="60" value="20" onchange="simulador.set_tiempo_refresh()"/>
+                        </p>
+                    </li>
                     <li><a id="fecha_sistema"></a></li>
                 </ul>
             </div>
         </nav>
         <div class="row"></div>
-        
-        <div class="row div_hide">
-            DIV PARA ALGO
-        </div>
-        
-        <div class="row div_hide">
-            DIV PARA OTRO ALGO
-        </div>
         
         <!--DIV PARA VISUALIZACIÓN DEL MAPA -->
         <div class="row center-align">

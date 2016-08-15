@@ -65,9 +65,14 @@ class Simulador extends CI_Controller {
             if (count($retorno['pedidos_despachados'])!==0){
                 //Se actualiza el estado de los recursos despachados por "Ocupado", y el Stress asociado.
                 if ($this->MRecursos->ocupar($retorno['recursos_ocupados'])){
-                    //Se generan los metadatos y se retorna el resultado al simulador
-                    $resultado['data'] = $this->MPedidos->get_datos_simulacion($retorno['pedidos_despachados']);
-                    $this->db->trans_complete();
+                    //Damos indicación a prolog que se efectivizó el despacho de los pedidos y recursos indicados.
+                    if ($this->MSocket->indicar_despacho($retorno['pedidos_despachados'], $retorno['recursos_ocupados'])){
+                        //Se generan los metadatos y se retorna el resultado al simulador
+                        $resultado['data'] = $this->MPedidos->get_datos_simulacion($retorno['pedidos_despachados']);
+                        $this->db->trans_complete();    
+                    }else{
+                        $resultado['error'] = 'Se produjo un error al enviar mensaje a prolog.';
+                    }
                 }else{
                     $resultado['error'] = 'Se produjo un error al intentar ocupar los recursos';
                 }
@@ -104,10 +109,14 @@ class Simulador extends CI_Controller {
             //Indicamos con estado finalizado los pedidos procesados cuyos id son $ids_pedidos, e indicamos la hora de egreso
             //en la tabla de Pedidos.
             if ( $this->MPedidos->finalizar($ids_pedidos) ){
-                
                 //Indicamos con estado desocupado los recursos cuyos id son $ids_recursos.
                 if ( $this->MRecursos->liberar($ids_recursos) ){
-                    $this->db->trans_complete();
+                    //Damos indicación a prolog que se efectivizó el despacho de los pedidos y recursos indicados.
+                    if ($this->MSocket->indicar_finalizacion($ids_recursos)){
+                        $this->db->trans_complete();
+                    }else{
+                        $resultado['error'] = 'Se produjo un error al enviar mensaje a prolog.';
+                    }
                 }else{
                     $resultado['error'] = 'Se produjo un error al intentar liberar recursos.';
                 }

@@ -5,6 +5,10 @@ var viajes_a_simular = [];
 
 var simulador = {
     
+    set_tiempo_refresh : function(){
+        refresh = parseInt($('#tiempo_refresh').val());
+    },
+    
     tiempo_timeOut : function(){ return timeOut; },
     
     tiempo_refresh : function(){ return refresh; },
@@ -76,10 +80,8 @@ var simulador = {
                 var recorrido_actual = latitud_actual / Math.sin(tita);
 
                 //Tiempo requerido para llegar al punto final del paso actual, en función de velocidad del tramo.
-                var tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.85 + (0.15) * Math.random())) );
-                
-                console.log("Tiempo requerido: " + tRequerido);
-                
+                var tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.95 + (0.10) * Math.random())) );
+               
                 //Si aún se debe avanzar por sobre el tramo del paso actual.
                 if ( tRequerido >= ( simulador.tiempo_refresh() ) ){
                         
@@ -101,8 +103,6 @@ var simulador = {
                         }
                     }
                 }else{
-                    console.log("Tiempo no alcanza");
-                    
                     //Indicamos que el tiempo sobrante es el tiempo de refresh de la simulación.
                     tSobrante = simulador.tiempo_refresh();
 
@@ -128,15 +128,11 @@ var simulador = {
                         recorrido_actual = latitud_actual / Math.sin(tita);
 
                         //Tiempo requerido para llegar al punto final del nuevo paso actual, en función de velocidad del tramo.
-                        tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.85 + 0.15 * Math.random())) );
-                        console.log("Tiempo requerido nuevo: " + tRequerido);
-                        console.log("Pasos totales: " + viaje.pasos_totales);
-                        console.log("Paso actual: " + viaje.paso_actual);                        
+                        tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.95 + 0.10 * Math.random())) );
                     }
 
                     //Si avancé hasta un step en el que se requiere un tiempo mayor o igual al sobrante de la simulación actual
                     if (tRequerido >= tSobrante ){
-                        console.log("Encontro paso para avanzar con tSobrante");
                         //Actualizamos la posición del viaje.
                         var nueva_posicion = {
                             lat: latitud_actual + velocidad * tSobrante * Math.sin(tita), 
@@ -158,7 +154,6 @@ var simulador = {
                     }else{
                         //El tiempo tRequerido < tSobrante pero no tengo más pasos que saltear, el viaje está finalizado.
                         //Actualizamos la posición del viaje simulado, como la posición final del paso salteado.
-                        console.log("NO encontro paso y finaliza");
                         var nueva_posicion = {
                             lat: paso_actual.fin.lat(), 
                             lng: paso_actual.fin.lng()
@@ -247,7 +242,7 @@ var simulador = {
                         var respuesta = JSON.parse(response);
                         if (respuesta['error'] === undefined){
                             auxiliar.mensaje('Actualizar finalizados: OK', 2500, 'toast-ok');
-                            simulador_vista.recorridos.informar_finalizados(ids_viajes);
+                            simulador_vista.recorridos.informar_finalizados(ids_viajes, ids_recursos);
                         }else{
                             auxiliar.mensaje('Actualizar finalizados: ERROR', 2500,'toast-error');
                             auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
@@ -277,7 +272,7 @@ var simulador = {
         },
         
         generar_metadatos : function(recorrido, id_pedido, id_recurso){
-            var KPH_TO_GPS = 1/400390; //400748;//365000;
+            var KPH_TO_GPS = 1/312336; //365000; //400748;//365000;
             var steps = recorrido.routes[0].overview_path;
             
             var distancia = recorrido.routes[0].legs[0].distance.value;

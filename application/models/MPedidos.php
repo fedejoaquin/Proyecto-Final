@@ -101,7 +101,7 @@ class MPedidos extends CI_Model {
      * En caso de la existencia de más de un pedido asociado a un mismo recurso, se despacha aquel cuyo columna
      * orden sea menor.
      * $retorno['pedidos_despachados'] = Array(Id_pedido) = Indica los Id_pedido despachados.
-     * $retorno['recursos_ocupados'] = Array({Id, Stress}) = Indica los Id_recurso ocupados y su stress asociado.
+     * $retorno['recursos_ocupados'] = Array([Id, Stress]) = Indica los Id_recurso ocupados y su stress asociado.
      * $retorno['resultado'] = True o False indicando operación exitosa o no.
      */
     public function despachar($recursos){

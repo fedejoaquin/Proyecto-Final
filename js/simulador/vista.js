@@ -1,11 +1,11 @@
 var simulador_vista = {
 
     recorridos : {
-        informar_finalizados : function(ids_viajes){
+        informar_finalizados : function(ids_viajes, ids_recursos){
             for(i=0; i<ids_viajes.length; i++){
-                mapa.marcas.estaticas.visibilidad("o"+ids_viajes[i], false);
-                mapa.marcas.estaticas.visibilidad("d"+ids_viajes[i], false);
-                mapa.marcas.estaticas.visibilidad("t"+ids_viajes[i], false);
+                mapa.marcas.estaticas.eliminar("o"+ids_viajes[i], false);
+                mapa.marcas.estaticas.eliminar("d"+ids_viajes[i], false);
+                mapa.marcas.estaticas.eliminar("t"+ids_recursos[i], false);
                 mapa.direcciones.eliminar(ids_viajes[i]);
             }
         }
