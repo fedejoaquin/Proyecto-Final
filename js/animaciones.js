@@ -44,8 +44,19 @@ $(document).ready(function(){
 
         // El mouse deja de posicionarse sobre el elemento
         function(){
-            // Quitamos relleno a las estrellas que se rellenaron
-            $(this).prevAll().andSelf().removeClass('estrellaVotar');
+            // Obtenemos el valor de la valoracion actual
+            var valor = $('#cv_valor').val();
+            
+            if (valor !== 0){
+                // Rellenamos las estrellas según la valoración indicada.
+                $(this).parent().find('#e' + valor).prevAll().andSelf().addClass('estrellaVotar');
+                
+                // Quitamos relleno a las estrellas sobren
+                $(this).parent().find('#e'+ valor).nextAll().removeClass('estrellaVotar');
+            }else{
+                // Quitamos relleno a las estrellas sobren
+                $(this).parent().find('#e0').nextAll().andSelf().removeClass('estrellaVotar');
+            }
         }
     );
 });

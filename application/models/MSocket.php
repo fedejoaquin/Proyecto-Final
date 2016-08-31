@@ -11,7 +11,7 @@ class MSocket extends CI_Model {
         
         //Por cada asociación id_viaje, id_recurso, genero una tupla asignado(id_recurso, id_viaje)
         for($i=0; $i<count($ids_viajes); $i++){
-            $cadena = "asignado(".$ids_recursos[$i]['id'].",$ids_viajes[$i])";
+            $cadena = "asignacion(".$ids_recursos[$i]['id'].",$ids_viajes[$i])";
             array_push($asignaciones, $cadena);
         }
         //Genero un string con las tuplas asignado(viaje,recurso) separadas por el caracter ','.
@@ -20,7 +20,7 @@ class MSocket extends CI_Model {
         //Indico el mensaje a enviar a prolog via socket.
         $toSend = "asignar([$elementos])\n";
         
-        return true; //($this->enviar_mensaje($toSend));
+        return ($this->enviar_mensaje($toSend));
     }
     
     /**
@@ -35,7 +35,7 @@ class MSocket extends CI_Model {
         //Indico el mensaje a enviar a prolog via socket.
         $toSend = "finalizo([$elementos])\n";
         
-        return true; //($this->enviar_mensaje($toSend));
+        return ($this->enviar_mensaje($toSend));
     }
     
     /**
@@ -44,7 +44,7 @@ class MSocket extends CI_Model {
      */
     private function enviar_mensaje($toSend){
         //Creo la conexión vía socket y envío el mensaje.
-	$ip = '127.0.0.50';
+	$ip = 'localhost';
 	$port = 10000;
 
 	//Creación de sockets tcp/ip

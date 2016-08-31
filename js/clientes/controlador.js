@@ -59,33 +59,88 @@ viajes : {
     },
     
     info : function(id,ingreso,estado,id_recurso){
-        if (estado !== 'A_despachar' && estado !== 'Despachado' && estado !== 'Finalizado'){
-            clientes_vista.viajes.info(id, ingreso, estado, "Sin asignar","Sin asignar","Sin asignar","Sin asignar","Sin asignar" );
+        if (estado == 'Rechazado'){
+            clientes_vista.viajes.ver_rechazado(id);
+            auxiliar.mensaje('El viaje fue rechazado. Chequee margen de tiempo.', 5000, 'toast-info');
         }else{
-            auxiliar.espera.lanzar();
-            $.ajax({
-                data: { id_recurso : id_recurso },
-                url:   '/PF/clientes/info_recurso',
-                type:  'post',
-                error: function(response){
-                    auxiliar.espera.detener();
-                    clientes_vista.viajes.info(id, ingreso, estado, "Error","Error","Error","Error","Error" );
-                    auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
-                    auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
-                    auxiliar.mensaje('El pedido no se realizó correctamente.', 5000,'toast-error');
-                },
-                success: function (response){
-                    var respuesta = JSON.parse(response);
-                    auxiliar.espera.detener();
-                    if (respuesta['error'] === undefined){
-                        var rta = respuesta['data'];
-                        clientes_vista.viajes.info(id, ingreso, estado, rta['nombre'],rta['patente'], rta['marca'], rta['modelo'], rta['color']);
-                    }else{
+            if (estado !== 'A_despachar' && estado !== 'Despachado' && estado !== 'Finalizado'){
+                clientes_vista.viajes.info(id, ingreso, estado, "Sin asignar","Sin asignar","Sin asignar","Sin asignar","Sin asignar" );
+            }else{
+                auxiliar.espera.lanzar();
+                $.ajax({
+                    data: { id_recurso : id_recurso },
+                    url:   '/PF/clientes/info_recurso',
+                    type:  'post',
+                    error: function(response){
+                        auxiliar.espera.detener();
                         clientes_vista.viajes.info(id, ingreso, estado, "Error","Error","Error","Error","Error" );
-                        auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                        auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
+                        auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
+                        auxiliar.mensaje('El pedido no se realizó correctamente.', 5000,'toast-error');
+                    },
+                    success: function (response){
+                        var respuesta = JSON.parse(response);
+                        auxiliar.espera.detener();
+                        if (respuesta['error'] === undefined){
+                            var rta = respuesta['data'];
+                            clientes_vista.viajes.info(id, ingreso, estado, rta['nombre'],rta['patente'], rta['marca'], rta['modelo'], rta['color']);
+                        }else{
+                            clientes_vista.viajes.info(id, ingreso, estado, "Error","Error","Error","Error","Error" );
+                            auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                        }
                     }
+                });
+            }
+        }
+    },
+    
+        
+    calificacion : {
+        calificar : function(id_viaje, id_recurso, estado){
+            if (estado == "Finalizado"){
+                clientes_vista.viajes.calificacion.calificar(id_viaje, id_recurso);
+            }else{
+                if (estado == "Rechazado"){
+                    clientes_vista.viajes.ver_rechazado(id_viaje);
+                    auxiliar.mensaje('El viaje fue rechazado. Chequee margen de tiempo.', 5000, 'toast-info');
+                }else{
+                    auxiliar.mensaje("El viaje aún no finalizó para calificarlo.", 5000, 'toast-error');
                 }
-            });
+            }
+        },
+
+        confirmar : function(){
+            var id = $('#cv_id').val(); 
+            var id_recurso = $('#cv_id_recurso').val();
+            var calif = $('#cv_valor').val();
+            var comentarios = $('#cv_comentario').val();
+
+            if (calif > 0 ){
+                auxiliar.espera.lanzar();
+                $.ajax({
+                    data: { id_viaje : id, id_recurso: id_recurso, calificacion: calif, comentarios: comentarios },
+                    url:   '/PF/clientes/calificar_viaje',
+                    type:  'post',
+                    error: function(response){
+                        auxiliar.espera.detener();
+                        auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
+                        auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
+                        auxiliar.mensaje('La calificación no se realizó correctamente.', 5000,'toast-error');
+                    },
+                    success: function (response){
+                        var respuesta = JSON.parse(response);
+                        auxiliar.espera.detener();
+                        if (respuesta['error'] === undefined){
+                            clientes_vista.viajes.calificacion.confirmar(id);
+                            auxiliar.mensaje("El viaje se califico correctamente.", 'toast-ok', 3000);
+                        }else{
+                            auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                        }
+                    }
+                });
+            }else{
+                auxiliar.mensaje("Debe emitir calificación.", 5000, 'toast-error');
+            }
         }
     },
     
@@ -216,50 +271,6 @@ viajes : {
         }
         mapa.marcas.estaticas.visibilidad('Origen', false);
         mapa.marcas.estaticas.visibilidad('Destino', false);
-    },
-    
-    calificacion : {
-        calificar : function(id_viaje, id_recurso, estado){
-            if (estado == "Finalizado"){
-                clientes_vista.viajes.calificacion.calificar(id_viaje, id_recurso);
-            }else{
-                auxiliar.mensaje("El viaje aún no finalizó para calificarlo.", 5000, 'toast-error');
-            }
-        },
-
-        confirmar : function(){
-            var id = $('#cv_id').val(); 
-            var id_recurso = $('#cv_id_recurso').val();
-            var calif = $('#cv_valor').val();
-            var comentarios = $('#cv_comentario').val();
-
-            if (calif > 0 ){
-                auxiliar.espera.lanzar();
-                $.ajax({
-                    data: { id_viaje : id, id_recurso: id_recurso, calificacion: calif, comentarios: comentarios },
-                    url:   '/PF/clientes/calificar_viaje',
-                    type:  'post',
-                    error: function(response){
-                        auxiliar.espera.detener();
-                        auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
-                        auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
-                        auxiliar.mensaje('La calificación no se realizó correctamente.', 5000,'toast-error');
-                    },
-                    success: function (response){
-                        var respuesta = JSON.parse(response);
-                        auxiliar.espera.detener();
-                        if (respuesta['error'] === undefined){
-                            clientes_vista.viajes.calificacion.confirmar();
-                            auxiliar.mensaje("El viaje se califico correctamente.", 'toast-ok', 3000);
-                        }else{
-                            auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
-                        }
-                    }
-                });
-            }else{
-                auxiliar.mensaje("Debe emitir calificación.", 5000, 'toast-error');
-            }
-        }
     },
     
     check : function(){

@@ -24,6 +24,11 @@
     height: 100px;
 }
 
+.btn-en-construccion{
+    width: 150px;
+    height: 150px; 
+}
+
 .div_hide{
     display:none;
 }
@@ -49,6 +54,14 @@
 .txt-form-error{
     font-size: 11px;
     font-style: Italic;
+    color: red;
+}
+
+.tiempo_ok{
+    color : green;
+}
+
+.tiempo_error{
     color: red;
 }
 

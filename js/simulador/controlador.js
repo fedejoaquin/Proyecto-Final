@@ -2,6 +2,9 @@ var fecha;
 var timeOut = 2000;
 var refresh = 20;
 var viajes_a_simular = [];
+var pausado = 1009;
+var corriendo = 1010;
+var estado = pausado;
 
 var simulador = {
     
@@ -12,23 +15,43 @@ var simulador = {
     tiempo_timeOut : function(){ return timeOut; },
     
     tiempo_refresh : function(){ return refresh; },
+    
+    estado : {
+        cambiar : function(){
+            if (estado===pausado){
+                estado = corriendo;
+                simulador_vista.estado.cambiar(corriendo);
+            }else{
+                estado = pausado;
+                simulador_vista.estado.cambiar(pausado);
+            }
+        }
+    },
        
     main : function(){
         
-        //Actualiza y notifica la hora del sistema
-        simulador.fecha.actualizar_notificar();
+        //Si la simulación no está pausada.
+        if (estado === corriendo){
+
+            //Actualiza y notifica la hora del sistema
+            simulador.fecha.actualizar_notificar();
+
+            //Consulta las simulaciones a generar.
+            simulador.recorridos.consultar_nuevas_simulaciones();
+
+            //Mueve los recursos y actualiza su ultima posición.
+            simulador.recorridos.simular_paso();
+
+            //Notifica la última posición de todos los recursos simulados.
+            simulador.recorridos.informar_ultima_posicion();
+
+            //Notifica aquellos viajes finalizados.
+            simulador.recorridos.informar_finalizados();
+            
+            //Actualiza y establece la posición de los recursos disponibles
+            simulador.recursos_no_disponibles.consultar_graficar();
         
-        //Consulta las simulaciones a generar.
-        simulador.recorridos.consultar_nuevas_simulaciones();
-        
-        //Mueve los recursos y actualiza su ultima posición.
-        simulador.recorridos.simular_paso();
-        
-        //Notifica la última posición de todos los recursos simulados.
-        simulador.recorridos.informar_ultima_posicion();
-        
-        //Notifica aquellos viajes finalizados.
-        simulador.recorridos.informar_finalizados();
+        }
         
         //Se corre una nueva iteración de simulación al cabo de tiempo_timeOut milisegundos.
         setTimeout('simulador.main()', simulador.tiempo_timeOut());
@@ -38,7 +61,7 @@ var simulador = {
         
         consultar_nuevas_simulaciones : function(){
             $.ajax({
-                async: true,
+                async: false,
                 data: {},
                 url:   '/PF/simulador/generar_nuevas_simulaciones',
                 type:  'post',
@@ -73,14 +96,14 @@ var simulador = {
                 var tSobrante = 0;
                 
                 //Latitud y longitud actual de la marca del viaje simulado.
-                var latitud_actual = mapa.marcas.estaticas.latitud("t"+viaje['id_recurso']);
-                var longitud_actual = mapa.marcas.estaticas.longitud("t"+viaje['id_recurso']);
+                var latitud_actual = mapa.marcas.estaticas.latitud("R"+viaje['id_recurso']);
+                var longitud_actual = mapa.marcas.estaticas.longitud("R"+viaje['id_recurso']);
 
                 //Distancia recorrida actualmente, proyectada a partir de la latitud de la ubicación actual.
                 var recorrido_actual = latitud_actual / Math.sin(tita);
 
                 //Tiempo requerido para llegar al punto final del paso actual, en función de velocidad del tramo.
-                var tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.95 + (0.10) * Math.random())) );
+                var tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.85 + 0.15 * Math.random())) );
                
                 //Si aún se debe avanzar por sobre el tramo del paso actual.
                 if ( tRequerido >= ( simulador.tiempo_refresh() ) ){
@@ -91,7 +114,7 @@ var simulador = {
                     };
                     
                     //Actualizamos la ubicación de la marca.
-                    mapa.marcas.estaticas.cambiar("t"+viaje['id_recurso'], nueva_posicion);
+                    mapa.marcas.estaticas.cambiar("R"+viaje['id_recurso'], nueva_posicion);
 
                     //Si el tiempo requerido es igual al step de simulación, el step y/o el viaje están terminados.
                     if ( tRequerido === ( simulador.tiempo_refresh() ) ){
@@ -128,7 +151,7 @@ var simulador = {
                         recorrido_actual = latitud_actual / Math.sin(tita);
 
                         //Tiempo requerido para llegar al punto final del nuevo paso actual, en función de velocidad del tramo.
-                        tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.95 + 0.10 * Math.random())) );
+                        tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.85 + 0.15 * Math.random())) );
                     }
 
                     //Si avancé hasta un step en el que se requiere un tiempo mayor o igual al sobrante de la simulación actual
@@ -140,7 +163,7 @@ var simulador = {
                         };
 
                         //Actualizamos la ubicación de la marca.
-                        mapa.marcas.estaticas.cambiar("t"+viaje['id_recurso'], nueva_posicion);
+                        mapa.marcas.estaticas.cambiar("R"+viaje['id_recurso'], nueva_posicion);
 
                         //Si el tiempo requerido es igual al tiempo que sobró del step de simulación, el step y/o el viaje están terminados.
                         if ( tRequerido === tSobrante ){
@@ -160,7 +183,7 @@ var simulador = {
                         };
                         
                         //Actualizamos la ubicación de la marca.
-                        mapa.marcas.estaticas.cambiar("t"+viaje['id_recurso'], nueva_posicion);
+                        mapa.marcas.estaticas.cambiar("R"+viaje['id_recurso'], nueva_posicion);
                         
                         viaje.paso_actual = viaje.paso_actual + 1;
                         viaje.terminado = true;
@@ -180,8 +203,8 @@ var simulador = {
                 for(i=0; i<viajes_a_simular.length; i++){
                     var viaje = viajes_a_simular[i];
                     var id_recurso = viaje.id_recurso;
-                    var lat = mapa.marcas.estaticas.latitud("t"+id_recurso);
-                    var long = mapa.marcas.estaticas.longitud("t"+id_recurso);
+                    var lat = mapa.marcas.estaticas.latitud("R"+id_recurso);
+                    var long = mapa.marcas.estaticas.longitud("R"+id_recurso);
                     ids_recursos.push(id_recurso);
                     lat_recursos.push(lat);
                     long_recursos.push(long);
@@ -231,7 +254,7 @@ var simulador = {
                 }
                 
                 $.ajax({
-                    async: true,
+                    async: false,
                     data: { ids_pedidos: ids_viajes, ids_recursos: ids_recursos },
                     url:   '/PF/simulador/actualiza_viajes_finalizados',
                     type:  'post',
@@ -251,7 +274,7 @@ var simulador = {
                 });
             }
         } // FIN INFORMAR FINALIZADOS
-    },
+    }, //FIN RECORRIDOS
     
     logica : {
         construir_recorridos : function(nuevos_viajes){
@@ -263,9 +286,9 @@ var simulador = {
                 var posIntermedia = { lat: parseFloat(viaje['lat_origen']), lng: parseFloat(viaje['long_origen'])};
                 var posDestino = { lat: parseFloat(viaje['lat_destino']), lng: parseFloat(viaje['long_destino'])}; 
                 
-                mapa.marcas.estaticas.agregar("t"+viaje['id_recurso'], posOrigen);
-                mapa.marcas.estaticas.agregar("o"+viaje['id_pedido'], posIntermedia);
-                mapa.marcas.estaticas.agregar("d"+viaje['id_pedido'], posDestino);
+                mapa.marcas.estaticas.agregar("R"+viaje['id_recurso'], posOrigen, "Recurso_Despachado");
+                mapa.marcas.estaticas.agregar("o"+viaje['id_pedido'], posIntermedia, "Origen_Despachado");
+                mapa.marcas.estaticas.agregar("d"+viaje['id_pedido'], posDestino, "Destino_Despachado");
                 
                 mapa.direcciones.dibujar(viaje['id_pedido'],viaje['id_recurso'],posOrigen, posIntermedia, posDestino, simulador.logica.generar_metadatos);
             }
@@ -306,6 +329,27 @@ var simulador = {
         
     },//FIN LOGICA
     
+    recursos_no_disponibles : {
+        consultar_graficar : function(){
+            $.ajax({
+                data: {},
+                url:   '/PF/simulador/consultar_recursos_no_disponibles',
+                type:  'post',
+                error: function(response){
+                    auxiliar.mensaje('Recursos no disponibles: FALLO', 2500,'toast-error');
+                },
+                success: function (response){
+                    var respuesta = JSON.parse(response);
+                    if (respuesta['error'] === undefined){
+                        simulador_vista.recursos_no_disponibles.consultar_graficar(respuesta['data']);
+                    }else{
+                        auxiliar.mensaje('Recursos no disponibles: ERROR', 2500,'toast-error');
+                        auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                    }
+                }
+            });
+        }
+    }, //FIN RECURSOS NO DISPONIBLES
     
     fecha : {
         
@@ -352,7 +396,7 @@ var simulador = {
             
             return fecha_parseada;
         }
-    }
+    } //FIN FECHA
 
 };//FIN SIMULADOR
 

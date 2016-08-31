@@ -158,6 +158,24 @@ class Simulador extends CI_Controller {
         }
         echo json_encode($resultado);
     }
+    
+    /**
+     * Consulta y retorna la colección de recursos desocupados . 
+     * 
+     * @return VIA AJAX
+     * $resultado['data'] = Array().
+     * $resultado['error'] = Error en caso de corresponder.
+     */
+    public function consultar_recursos_no_disponibles(){
+        $this->control_origen_ajax();
+        
+        $resultado = array(); 
+        $resultado['data'] = array();
+        
+        $resultado['data'] = $this->MRecursos->get_desocupados();
+        
+        echo json_encode($resultado);
+    }
 
     /**
      * Chequea que el origen de la petición actual sea vía ajax.

@@ -131,8 +131,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <td>Fecha</td>
                                 <td>Origen</td>
                                 <td>Destino</td>
-                                <td>¿A tiempo?</td>
                                 <td>Conductor</td>
+                                <td>¿A tiempo?</td>
+                                <td>Diferencia</td>
                             </tr>
                         </thead>
                         <tbody id="tblHistorialViajes">
@@ -141,14 +142,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <td> <?php echo $viaje['fecha']; ?> </td>
                                     <td> <?php echo $viaje['origen']; ?> </td>
                                     <td> <?php echo $viaje['destino']; ?> </td>
-                                    <td> 
-                                        <?php if ($viaje['a_tiempo']){
-                                                echo 'Sí';
-                                            }else{ 
-                                                echo 'No';
-                                            }?> 
-                                    </td>
                                     <td> <?php echo $viaje['nombre']; ?> </td>
+                                    <td> <?php echo ( $viaje['a_tiempo'] ? 'Sí' : 'No' ); ?> </td>
+                                    <td class="<?php  echo ($viaje['a_tiempo'] ? 'tiempo_ok' : 'tiempo_error'); ?>"> 
+                                        <b>
+                                            <?php echo ($viaje['a_tiempo'] ? '-' : '+' ).$viaje['diferencia']; ?>
+                                        </b> 
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -229,7 +229,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </thead>
                         <tbody id="tblEstadoViajes">
                             <?php foreach ($viajes_actuales as $viaje) { ?>
-                                <tr>
+                                <tr id="<?php echo 'fila_'.$viaje['id'] ?>">
                                     <?php $datos = "'".$viaje['id']."','".$viaje['ingreso']."','".$viaje['estado']."',".$viaje['id_recurso']; ?>
                                     <td> <?php echo $viaje['origen']; ?> </td>
                                     <td> <?php echo $viaje['destino']; ?> </td>

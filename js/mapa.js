@@ -30,16 +30,16 @@ var mapa = {
         mapa.iconos.init();
         mapa.colores.init();
         
-        mapa.marcas.estaticas.agregar('Origen', null);
-        mapa.marcas.estaticas.agregar('Destino', null);
+        mapa.marcas.estaticas.agregar('Origen', null, "Sin_icono");
+        mapa.marcas.estaticas.agregar('Destino', null, "Sin_icono");
     },
     
     marcas : {
         
         estaticas : {
             
-            agregar : function(nombre, position){
-                var m = new google.maps.Marker({map: mapa.map(), title: nombre, position: position});
+            agregar : function(nombre, position, tipo){
+                var m = new google.maps.Marker({map: mapa.map(), title: nombre, position: position, icon: mapa.iconos.get(tipo)});
                 marcas_estaticas[nombre] = m;
             },
             
@@ -176,6 +176,8 @@ var mapa = {
             icons['Origen_Finalizado'] = base + 'o_f.png';
             icons['Destino_Finalizado'] = base + 'd_f.png';
             icons['Recurso'] = base + 'r.png';
+            icons['Recurso_Despachado'] = base + 'r_d.png';
+            icons['Sin_icono'] = null;
         },
 
         get : function(tipo){

@@ -2,17 +2,18 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <!DOCTYPE html>
-
 <!doctype html>
 
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-        <title>Auto SMART :: Intranet </title>
+        <title>Auto SMART :: En construcción </title>
+        
         <?php include 'componentes/recursos.phtml'; ?>
     </head>
     <body>
+        
         <!-- BOTONERA PRINCIPAL -->
         <nav class="white" role="navigation">
             <div class="nav-wrapper container">
@@ -47,38 +48,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
             </div>
         </nav>
-
-        <!-- CUERPO PRINCIPAL -->
-        <h5 class="row txt-cabecera">¡Bienvenido al sistema Auto-SMART!</h5>
-        <h6 class="row txt-info">..: Seleccione el rol a utilizar :..</h6>
         
-        <div class="row">
-            <div class="col s12 center-align">
-                <?php
-                    $roles = $this->session->userdata('roles');
-                    if (in_array("admin", $roles)){ ?>
-                        <a class="tooltipped" data-tooltip="Admin" href="<?php echo site_url() ?>admin">
-                            <img src="<?php echo site_url()?>img/perfiles/admin.png" class="btn-perfil btn-floating transparent waves-effect waves-light">
-                        </a>
-                <?php } ?>
-                <?php if (in_array("operador", $roles)){ ?>
-                        <a class="tooltipped" data-tooltip="Operador" href="<?php echo site_url() ?>operador">
-                            <img src="<?php echo site_url()?>img/perfiles/operador.png" class="btn-perfil btn-floating transparent waves-effect waves-light">
-                        </a>
-                <?php } ?>
-                <?php if (in_array("conductor", $roles)){ ?>
-                        <a class="tooltipped" data-tooltip="Conductor" href="<?php echo site_url() ?>conductor">
-                            <img src="<?php echo site_url()?>img/perfiles/conductor.png" class="btn-perfil btn-floating transparent waves-effect waves-light">
-                        </a>
-                <?php } ?>
-            </div>
+        <h5 class="row txt-cabecera">
+            ¡Sección en Construcción!
+        </h5>
+        <h6 class="row txt-info">
+            ..: Vista de <?php echo $funcion; ?> :..
+        </h6>
+        <div class="row center-align">
+            <img src="<?php echo site_url()?>img/construccion/Boton_construccion.png" class="btn-en-construccion btn-floating transparent waves-effect waves-light">
+            <img src="<?php echo site_url()?>img/construccion/Boton_construccion_1.png" class="btn-en-construccion btn-floating transparent waves-effect waves-light">
+            <img src="<?php echo site_url()?>img/construccion/Boton_construccion_2.png" class="btn-en-construccion btn-floating transparent waves-effect waves-light">
+
         </div>
-              
+        <div class="row center-align">
+            <a class="btn waves-effect tooltipped" data-tooltip="Volver" href="<?php echo site_url()?>intranet" >Volver</a>
+        </div>
+        
         <?php include 'componentes/modal_nosotros.phtml'; ?>
 
         <!-- FOOTER -->
         <?php include 'componentes/footer.phtml'; ?>
-        
     </body>
 </html>
-

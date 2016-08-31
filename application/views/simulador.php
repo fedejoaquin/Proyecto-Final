@@ -31,6 +31,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 
                 <!-- BOTONES -->
                 <ul class="right">
+                    <li>
+                        <a onclick="simulador.estado.cambiar()">
+                            <i id="btn_play_pause" class="material-icons">play_circle_filled</i>
+                        </a>
+                    </li>
                     <li><a>Step avance:</a></li>
                     <li>
                         <p class="range-field">

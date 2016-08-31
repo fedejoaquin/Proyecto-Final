@@ -64,6 +64,28 @@ viajes : {
         $('#estado_viaje').openModal();
     },
     
+    ver_rechazado : function(id){
+        $('#fila_'+id).remove();
+    },
+    
+    calificacion : {
+        calificar : function(id_viaje, id_recurso){
+            $('#cv_id').val(id_viaje);
+            $('#cv_id_recurso').val(id_recurso);
+            $('#cv_valor').val(0);
+            $('#cv_comentario').val("");
+            for(i=1; i<6; i++){
+                $('#e'+i).removeClass( "estrellaVotar", 1, function(){} );
+            }
+            $('#calificar_viaje').openModal();
+        },
+
+        confirmar : function(id){
+            $('#fila_'+id).remove();
+            $('#calificar_viaje').closeModal();
+        }
+    },
+    
     pre_confirmar : function(){
         $("#confirmar_viaje").openModal();
     },
@@ -152,15 +174,27 @@ viajes : {
             $(tr).append(td);
             
             td = $('<td></td>');
-            if (row['max_arribo']){
-                $(td).text('Sí');
-            }else{
+            $(td).text(row['nombre']);
+            $(tr).append(td);
+            
+            td = $('<td></td>');
+            if (row['a_tiempo'] === '0'){
                 $(td).text('No');
+            }else{
+                $(td).text('Sí');
             }
             $(tr).append(td);
             
             td = $('<td></td>');
-            $(td).text(row['nombre']);
+            b = $('<b></b>');
+            if (row['a_tiempo'] === '1'){
+                $(td).attr('class','tiempo_ok');
+                $(b).text('-'+row['diferencia']);
+            }else{
+                $(td).attr('class','tiempo_error');
+                $(b).text('+'+row['diferencia']);
+            }
+            $(td).append(b);
             $(tr).append(td);
             
             $("#tblHistorialViajes").append(tr);
@@ -175,6 +209,7 @@ viajes : {
             var row = datos[i];
             
             tr = $("<tr></tr>");
+            $(tr).attr('id', 'fila_'+row['id']);
             
             td = $('<td></td>');
             $(td).text(row['origen']);
@@ -219,20 +254,6 @@ viajes : {
             mapa.marcas.dinamicas.agregar(row['id'], "Origen_"+row['estado'], pos_o);
             mapa.marcas.dinamicas.agregar(row['id'], "Destino_"+row['estado'], pos_d);
         }
-    },
-    
-    calificacion : {
-        calificar : function(id_viaje, id_recurso){
-            $('#cv_id').val(id_viaje);
-            $('#cv_id_recurso').val(id_recurso);
-            $('#cv_valor').val(0);
-            $('#cv_comentario').val("");
-            $('#calificar_viaje').openModal();
-        },
-
-        confirmar : function(){
-            $('#calificar_viaje').closeModal();
-        }
     }
     
 },//FIN VIAJES
@@ -243,7 +264,7 @@ recursos : {
         for (i=0; i<recursos.length; i++){
             recurso = recursos[i];
             pos = {'lat': parseFloat(recurso['ult_latitud']), 'lng': parseFloat(recurso['ult_longitud'])};
-            mapa.marcas.dinamicas.agregar("R"+recurso['id_recurso'],"Recurso",pos);
+            mapa.marcas.dinamicas.agregar("R"+recurso['id_recurso'],"Recurso_Despachado",pos);
         }
     }    
 }//FIN RECURSOS

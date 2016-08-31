@@ -97,7 +97,7 @@ class Clientes extends CI_Controller {
      * en estado de atención efectivo (estado = A_despachar, Despachado).
      * 
      * @return VIA AJAX
-     * $resultado['data']['historial_viajes'] = Array(Fecha, Origen, Destino, A_tiempo, Nombre).
+     * $resultado['data']['historial_viajes'] = Array(Fecha, Origen, Destino, A_tiempo, Diferencia, Nombre).
      * $resultado['data']['estado_viajes'] = Array(Ingreso, Origen, Destino, Lat_origen, Long_origen, Lat_destino, Long_destino, Max_arribo, Estado, Id_recurso).
      * $resultado['data']['estado_recursos'] = Array(Id_pedido, Id_recurso, Ult_latitud, Ult_longitud).
      * $resultado['error'] = Tipo de error en caso de corresponder.
