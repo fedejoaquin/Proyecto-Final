@@ -36,6 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <i id="btn_play_pause" class="material-icons">play_circle_filled</i>
                         </a>
                     </li>
+                    <li><a class="modal-trigger" data-target="modal_referencia">Referencias</a></li>
                     <li><a>Step avance:</a></li>
                     <li>
                         <p class="range-field">
@@ -53,9 +54,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div id="div_mapa" class="col m10 offset-m1 mapa_simulador">
             </div>
         </div> 
-        
-        <!-- MODAL NOSOTROS -->
-        <?php include 'componentes/modal_nosotros.phtml'; ?>
+                
+        <!-- MODAL REFERENCIA -->
+        <?php include 'componentes/modal_referencia.phtml'; ?>
 
         <!-- FOOTER -->
         <footer class="page-footer teal">

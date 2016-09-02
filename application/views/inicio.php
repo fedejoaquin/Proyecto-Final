@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <ul class="right hide-on-med-and-down">
                     <li><a target="_blank" href="<?php echo site_url() ?>simulador">Simulador</a></li>
-                    <li><a class="modal-trigger" data-target="nosotros">Nosotros</a></li>
+                    <li><a class="modal-trigger" data-target="modal_nosotros">Nosotros</a></li>
                     <li><a class="modal-trigger" data-target="intranet">Intranet</a></li>
                     <li><a class="modal-trigger" data-target="login">Iniciar sesión</a></li>
                 </ul>
@@ -44,7 +44,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </a>
                     </li>
                     <li>
-                        <a class="modal-trigger" data-target="nosotros">
+                        <a class="modal-trigger" data-target="modal_nosotros">
                             <i class="material-icons left">info</i>
                             Nosotros
                         </a>

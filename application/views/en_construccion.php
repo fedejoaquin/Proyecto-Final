@@ -24,14 +24,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </ul>
 
                 <ul class="right hide-on-med-and-down">
-                    <li><a class="modal-trigger" data-target="nosotros">Nosotros</a></li>
+                    <li><a class="modal-trigger" data-target="modal_nosotros">Nosotros</a></li>
                     <li><a href="<?php echo site_url(); ?>login/logout">Cerrar sesión</a></li>
                 </ul>
 
                 <!-- BOTONES CELULARES -->
                 <ul id="nav-mobile" class="side-nav">
                     <li>
-                        <a class="modal-trigger" data-target="nosotros">
+                        <a class="modal-trigger" data-target="modal_nosotros">
                             <i class="material-icons left">info</i>
                             Nosotros
                         </a>

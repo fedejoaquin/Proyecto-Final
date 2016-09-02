@@ -31,7 +31,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </ul>
 
                 <ul class="right hide-on-med-and-down">
-                    <li><a class="modal-trigger" data-target="nosotros">Nosotros</a></li>
+                    <li><a class="modal-trigger" data-target="modal_nosotros">Nosotros</a></li>
+                    <li><a class="modal-trigger" data-target="modal_referencia">Referencias</a></li>
                     <li>
                         <a class="dropdown-button" href="#" data-activates="dropAcciones">
                             <i class="material-icons right">arrow_drop_down</i>
@@ -71,9 +72,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <!-- BOTONES CELULARES -->
                 <ul id="nav-mobile" class="side-nav">
                     <li>
-                        <a class="modal-trigger" data-target="nosotros">
+                        <a class="modal-trigger" data-target="modal_nosotros">
                             <i class="material-icons left">info</i>
                             Nosotros
+                        </a>
+                    </li>
+                    <li>
+                        <a class="modal-trigger" data-target="modal_referencia">
+                            <i class="material-icons left">info</i>
+                            Referencias
                         </a>
                     </li>
                     <li class="divider"></li>
@@ -249,7 +256,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <i class="material-icons">stars</i>
                                         </a>
                                     </td>
-                                    
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -406,6 +412,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         
         <!-- MODAL ESPERA -->
         <?php include 'componentes/modal_espera.phtml'; ?>
+        
+        <!-- MODAL REFERENCIA -->
+        <?php include 'componentes/modal_referencia.phtml'; ?>
 
         <!-- FOOTER -->
         <?php include 'componentes/footer.phtml'; ?>

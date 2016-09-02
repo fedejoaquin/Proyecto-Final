@@ -2,7 +2,6 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Clientes extends CI_Controller {
-    
     /**
      * Chequea que el usuario se encuentre logueado como cliente.
      * Carga la vista cleintes si hay sesión abierta como cliente.
