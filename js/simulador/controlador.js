@@ -89,9 +89,12 @@ var simulador = {
                 
                 //Metadatos asociados al paso a simular del viaje actual.
                 var paso_actual = viaje.pasos[viaje.paso_actual];
-                var tita = paso_actual.tita;
                 var velocidad = viaje.velocidad;
+                var velocidad_random = velocidad * (0.85 + 0.15 * Math.random());
                 
+                var sin_tita = (paso_actual.tita === 0) ? 1 : Math.sin(paso_actual.tita);
+                var cos_tita = Math.cos(paso_actual.tita);
+             
                 //Variables auxiliares
                 var tSobrante = 0;
                 
@@ -100,17 +103,17 @@ var simulador = {
                 var longitud_actual = mapa.marcas.estaticas.longitud("R"+viaje['id_recurso']);
 
                 //Distancia recorrida actualmente, proyectada a partir de la latitud de la ubicación actual.
-                var recorrido_actual = latitud_actual / Math.sin(tita);
+                var recorrido_actual = latitud_actual / sin_tita;
 
                 //Tiempo requerido para llegar al punto final del paso actual, en función de velocidad del tramo.
-                var tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.85 + 0.15 * Math.random())) );
+                var tRequerido = Math.abs(((paso_actual.fin.lat() / sin_tita ) - recorrido_actual) / (velocidad_random) );
                
                 //Si aún se debe avanzar por sobre el tramo del paso actual.
                 if ( tRequerido >= ( simulador.tiempo_refresh() ) ){
                         
                     var nueva_posicion = {
-                        lat: latitud_actual + velocidad * simulador.tiempo_refresh() * Math.sin(tita), 
-                        lng: longitud_actual + velocidad * simulador.tiempo_refresh() * Math.cos(tita)
+                        lat: latitud_actual + velocidad_random * simulador.tiempo_refresh() * sin_tita, 
+                        lng: longitud_actual + velocidad_random * simulador.tiempo_refresh() * cos_tita
                     };
                     
                     //Actualizamos la ubicación de la marca.
@@ -132,9 +135,9 @@ var simulador = {
                     //Mientras el tRequerido por el step al que voy a saltear sea menor al tSobrante de los steps salteados, 
                     //y tenga pasos para saltear, los salteo.
                     while((tRequerido < tSobrante) && ((viaje.paso_actual + 1) !== viaje.pasos_totales)){
-
+                        
                         //Decrementamos el tSobrante en función del tRequerido por el paso salteado.
-                        tSobrante -= tRequerido;
+                        tSobrante = tSobrante - tRequerido;
                         
                         //Actualizamos la posición inicial del viaje simulado, como la posición final del paso salteado.
                         latitud_actual = paso_actual.fin.lat();
@@ -142,24 +145,28 @@ var simulador = {
 
                         //Avanzamos hacia el próximo step del viaje simulado.
                         viaje.paso_actual = viaje.paso_actual + 1;
-
+                        
                         //Obtenemos los metadatos asociados al nuevo paso actual simulado.
                         paso_actual = viaje.pasos[viaje.paso_actual];
-                        tita = paso_actual.tita;
-
+                        sin_tita = (paso_actual.tita === 0) ? 1 : Math.sin(paso_actual.tita);
+                        cos_tita = Math.cos(paso_actual.tita);
+                        velocidad_random = velocidad * (0.85 + 0.15 * Math.random());
+                        
                         //Distancia recorrida actualmente, proyectada a partir de la latitud de la nueva ubicación actual.
-                        recorrido_actual = latitud_actual / Math.sin(tita);
-
+                        recorrido_actual = latitud_actual / sin_tita;
+                        
                         //Tiempo requerido para llegar al punto final del nuevo paso actual, en función de velocidad del tramo.
-                        tRequerido = Math.abs(((paso_actual.fin.lat() / Math.sin(tita)) - recorrido_actual) / (velocidad * (0.85 + 0.15 * Math.random())) );
+                        tRequerido = Math.abs(((paso_actual.fin.lat() / sin_tita ) - recorrido_actual) / (velocidad_random) );
+                        
                     }
 
                     //Si avancé hasta un step en el que se requiere un tiempo mayor o igual al sobrante de la simulación actual
                     if (tRequerido >= tSobrante ){
+                        
                         //Actualizamos la posición del viaje.
                         var nueva_posicion = {
-                            lat: latitud_actual + velocidad * tSobrante * Math.sin(tita), 
-                            lng: longitud_actual + velocidad * tSobrante * Math.cos(tita)
+                            lat: latitud_actual + velocidad_random * tSobrante * sin_tita, 
+                            lng: longitud_actual + velocidad_random * tSobrante * cos_tita
                         };
 
                         //Actualizamos la ubicación de la marca.
@@ -168,13 +175,12 @@ var simulador = {
                         //Si el tiempo requerido es igual al tiempo que sobró del step de simulación, el step y/o el viaje están terminados.
                         if ( tRequerido === tSobrante ){
                             if ((viaje.paso_actual + 1) === viaje.pasos_totales){
-                                viaje.paso_actual = viaje.paso_actual + 1;
                                 viaje.terminado = true;
-                            }else{
-                                viaje.paso_actual = viaje.paso_actual + 1;
                             }
+                            viaje.paso_actual = viaje.paso_actual + 1;
                         }
                     }else{
+                        
                         //El tiempo tRequerido < tSobrante pero no tengo más pasos que saltear, el viaje está finalizado.
                         //Actualizamos la posición del viaje simulado, como la posición final del paso salteado.
                         var nueva_posicion = {
@@ -186,7 +192,7 @@ var simulador = {
                         mapa.marcas.estaticas.cambiar("R"+viaje['id_recurso'], nueva_posicion);
                         
                         viaje.paso_actual = viaje.paso_actual + 1;
-                        viaje.terminado = true;
+                        viaje.terminado = true;                        
                     }           
                 }
             }
