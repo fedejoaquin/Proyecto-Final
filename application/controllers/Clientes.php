@@ -207,6 +207,58 @@ class Clientes extends CI_Controller {
     }
     
     /**
+     * Computa la eliminación de un viaje rechazado.
+     * Elimina todo información de la BD referente al viaje rechazado.
+     * 
+     * @return VIA AJAX
+     * $resultado['data']= Array().
+     * $resultado['error] = Error, en caso de corresponder.
+     */
+    public function eliminar_rechazado(){
+        $this->control_origen_ajax();
+        
+        $resultado = array(); 
+        $resultado['data'] = array();
+        if($this->session->userdata('cid') !== null){
+            $cid = $this->session->userdata('cid');
+            $id_viaje = $this->input->post('id_viaje');
+            
+            //Obtenemos la info del pedido, recurso y su asociacion cuyos ids son $id_viaje, $id_recurso respectivamente.
+            $info_pedido = $this->MPedidos->get_info($id_viaje);
+            $asociacion = $this->MPedidos->get_asociacion($id_viaje);
+            
+            //Si tal viaje existe, y pertenece al usuario actual
+            if ( (!empty($info_pedido)) && (!empty($asociacion)) ){
+                if (($info_pedido['id_cliente'] == $cid) ){
+                    if ($asociacion['estado'] == "Rechazado"){
+                        $this->db->trans_start();
+                                 
+                        //Eliminamos el pedido, y los metadatos asoaciados.
+                        if ($this->MPedidos->eliminar($id_viaje)){
+                            if ($this->MConexiones->eliminar($id_viaje)){
+                                    $this->db->trans_complete();
+                            }else{
+                                $resultado['error'] = 'Se produjo un error al intentar eliminar.';
+                            }
+                        }else{
+                            $resultado['error'] = 'Se produjo un error al intentar eliminar.';
+                        }
+                    }else{
+                        $resultado['error'] = 'Viaje no rechazado. No se puede eliminar.';
+                    }
+                }else{
+                    $resultado['error'] = 'Viaje inexistente para el usuario actual.';
+                }
+            }else{
+                $resultado['error'] = 'Viaje inexistente para el usuario actual.';
+            }
+        }else{
+            $resultado['error'] = 'Usuario sin permisos.';
+        }
+        echo json_encode($resultado);
+    }
+    
+    /**
      * Edita el teléfono de un cliente.
      * 
      * @return VIA AJAX

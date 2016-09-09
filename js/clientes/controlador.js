@@ -60,8 +60,28 @@ viajes : {
     
     info : function(id,ingreso,estado,id_recurso){
         if (estado == 'Rechazado'){
-            clientes_vista.viajes.ver_rechazado(id);
-            auxiliar.mensaje('El viaje fue rechazado. Chequee margen de tiempo.', 5000, 'toast-info');
+            auxiliar.espera.lanzar();
+            $.ajax({
+                data: { id_viaje: id },
+                url:   '/PF/clientes/eliminar_rechazado',
+                type:  'post',
+                error: function(response){
+                    auxiliar.espera.detener();
+                    auxiliar.mensaje('Se produjo un error en la conexión.', 5000,'toast-error');
+                    auxiliar.mensaje('El servidor no está respondiendo nuestra solicitud.', 5000,'toast-error');
+                    auxiliar.mensaje('El pedido no se realizó correctamente.', 5000,'toast-error');
+                },
+                success: function (response){
+                    var respuesta = JSON.parse(response);
+                    auxiliar.espera.detener();
+                    if (respuesta['error'] === undefined){
+                        clientes_vista.viajes.ver_rechazado(id);
+                        auxiliar.mensaje('El viaje rechazado fue eliminado de su historial.', 5000, 'toast-info');
+                    }else{
+                        auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
+                    }
+                }
+            });            
         }else{
             if (estado !== 'A_despachar' && estado !== 'Despachado' && estado !== 'Finalizado'){
                 clientes_vista.viajes.info(id, ingreso, estado, "Sin asignar","Sin asignar","Sin asignar","Sin asignar","Sin asignar" );
@@ -101,8 +121,7 @@ viajes : {
                 clientes_vista.viajes.calificacion.calificar(id_viaje, id_recurso);
             }else{
                 if (estado == "Rechazado"){
-                    clientes_vista.viajes.ver_rechazado(id_viaje);
-                    auxiliar.mensaje('El viaje fue rechazado. Chequee margen de tiempo.', 5000, 'toast-info');
+                    clientes.viajes.info(id_viaje, null, estado, id_recurso);
                 }else{
                     auxiliar.mensaje("El viaje aún no finalizó para calificarlo.", 5000, 'toast-error');
                 }
