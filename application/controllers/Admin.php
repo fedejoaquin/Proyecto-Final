@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Admin extends CI_Controller {   
+class Admin extends CI_Controller {  
     /**
      * Chequea que el usuario se encuentre logueado como empleado.
      * Carga la vista cliente si hay sesión abierta como cliente.

@@ -6,6 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <html lang="en">
     <head>
+        <link rel="icon" type="image/png" href="<?php echo site_url()."/img/favicon.png";?>" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
         <title>Auto SMART :: Clientes </title>
@@ -16,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <script src="<?php echo site_url(); ?>js/mapa.js"></script>
         <script 
             async defer 
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTSGP0llQCtftW0W4QVaEh60dzNyOv09M&callback=mapa.init">         
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBTSGP0llQCtftW0W4QVaEh60dzNyOv09M&callback=mapa.init">         
         </script> 
         
     </head>

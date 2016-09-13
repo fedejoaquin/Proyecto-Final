@@ -1,6 +1,25 @@
 <?php 
 class MConexiones extends CI_Model {
     
+    private $hay_proxy = false;
+    
+    private function get_recursos_segun_proxy($cadena){
+        if ($this->hay_proxy){
+            $contexto = array(
+                    'http' => array(
+                        'proxy' => 'tcp://10.0.2.1:1280',
+                        'request_fulluri' => true,
+                    ),
+                );
+
+            $stream_contexto = stream_context_create($contexto);
+            $rta = file_get_contents($cadena, False, $stream_contexto);
+        }else{
+            $rta = file_get_contents($cadena);
+        }
+        return $rta;
+    }
+    
     public function generar($pid, $lat_origen, $long_origen, $lat_destino, $long_destino){
         
         $resultado = true;
@@ -58,7 +77,9 @@ class MConexiones extends CI_Model {
         }
         
         if (!(empty($conexiones_desde_ids))){
-            $rta_desde = file_get_contents("https://maps.googleapis.com/maps/api/distancematrix/json?origins=".$conexiones_desde."&destinations=".$destino_unico."&key=AIzaSyDroafadj_pILISoUsU2m1WJO7rxQGC4_M");
+            $cadena = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=".$conexiones_desde."&destinations=".$destino_unico."&key=AIzaSyDroafadj_pILISoUsU2m1WJO7rxQGC4_M";
+                        
+            $rta_desde = $this->get_recursos_segun_proxy($cadena);
             $json_desde = json_decode($rta_desde);
         
             $cant = 0;
@@ -75,7 +96,9 @@ class MConexiones extends CI_Model {
         }
         
         if(!(empty($conexiones_hacia_ids))){
-            $rta_hacia = file_get_contents("https://maps.googleapis.com/maps/api/distancematrix/json?origins=".$origen_unico."&destinations=".$conexiones_hacia."&key=AIzaSyDroafadj_pILISoUsU2m1WJO7rxQGC4_M");
+            $cadena = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=".$origen_unico."&destinations=".$conexiones_hacia."&key=AIzaSyDroafadj_pILISoUsU2m1WJO7rxQGC4_M";
+            
+            $rta_hacia = $this->get_recursos_segun_proxy($cadena);
             $json_hacia = json_decode($rta_hacia);
             
             $cant = 0;
@@ -91,7 +114,9 @@ class MConexiones extends CI_Model {
         }
         
         if(!(empty($conexiones_recursos_ids))){
-            $rta_recursos = file_get_contents("https://maps.googleapis.com/maps/api/distancematrix/json?origins=".$conexiones_recursos."&destinations=".$destino_unico."&key=AIzaSyDroafadj_pILISoUsU2m1WJO7rxQGC4_M");
+            $cadena = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=".$conexiones_recursos."&destinations=".$destino_unico."&key=AIzaSyDroafadj_pILISoUsU2m1WJO7rxQGC4_M";
+            
+            $rta_recursos = $this->get_recursos_segun_proxy($cadena);
             $json_recursos = json_decode($rta_recursos);
             
             $cant = 0;

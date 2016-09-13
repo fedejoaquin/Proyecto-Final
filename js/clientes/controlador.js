@@ -151,7 +151,7 @@ viajes : {
                         auxiliar.espera.detener();
                         if (respuesta['error'] === undefined){
                             clientes_vista.viajes.calificacion.confirmar(id);
-                            auxiliar.mensaje("El viaje se califico correctamente.", 'toast-ok', 3000);
+                            auxiliar.mensaje("El viaje se califico correctamente.", 3000, 'toast-ok');
                         }else{
                             auxiliar.mensaje(respuesta['error'], 5000, 'toast-error');
                         }
